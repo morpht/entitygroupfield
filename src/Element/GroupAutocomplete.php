@@ -7,7 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\Element\EntityAutocomplete;
 
 /**
- * Provides an group autocomplete form element.
+ * Provides a group autocomplete form element.
  *
  * The #default_value accepted by this element is either an entity object or an
  * array of entity objects.
@@ -37,7 +37,7 @@ class GroupAutocomplete extends EntityAutocomplete {
     elseif (count($groups) > 5) {
       $params['@id'] = key($groups);
       // Error if there are more than 5 matching groups.
-      $form_state->setError($element, t('Many groups are called %value. Specify the one you want by appending the id in parentheses, like "@value (@id)".', $params));
+      $form_state->setError($element, t('Many groups are called %value. Pick one by appending the ID in parentheses, like "@value (@id)".', $params));
     }
     elseif (count($groups) > 1) {
       // More helpful error if there are only a few matching groups.
@@ -46,7 +46,7 @@ class GroupAutocomplete extends EntityAutocomplete {
         $multiples[] = $name . ' (' . $id . ')';
       }
       $params['@id'] = $id;
-      $form_state->setError($element, t('Multiple groups match this reference; "%multiple". Specify the one you want by appending the id in parentheses, like "@value (@id)".', ['%multiple' => implode('", "', $multiples)] + $params));
+      $form_state->setError($element, t('Multiple groups match: "%multiple". Pick one by appending the ID in parentheses, like "@value (@id)".', ['%multiple' => implode('", "', $multiples)] + $params));
     }
     else {
       // Take the one and only matching entity.
