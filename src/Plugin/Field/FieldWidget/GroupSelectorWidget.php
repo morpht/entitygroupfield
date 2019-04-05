@@ -156,7 +156,6 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
     $target_type = $this->getFieldSetting('target_type');
 
     $item_mode = isset($widget_state['gcontent'][$delta]['mode']) ? $widget_state['gcontent'][$delta]['mode'] : 'edit';
-    $default_edit_mode = 'closed';
 
     $show_must_be_saved_warning = !empty($widget_state['gcontent'][$delta]['show_warning']);
 
@@ -247,7 +246,7 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
         }
       }
       else {
-        $can_delete = $group->hasPermission("delete any $entity_plugin_id content", $account);
+        $can_delete = $host->isNew() ?? $group->hasPermission("delete any $entity_plugin_id content", $account);
         $can_edit = $group->hasPermission("update any $entity_plugin_id content", $account);
       }
       // Checking if can delete own.
@@ -1167,7 +1166,7 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
         $can_create = $group->hasPermission("administer members", $account);
       }
       if (!$can_create) {
-        $can_create = $group->hasPermission("create $entity_plugin_id content", $account);
+        $can_create = $group->hasPermission("create $entity_plugin_id entity", $account);
       }
       if ($can_create) {
         $all_restricted = FALSE;
@@ -1179,7 +1178,7 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
     }
 
     // Add warning when all restricted.
-    if ($all_restricted && count($groups) != count($excluded_groups)) {
+    if ($all_restricted && !$existing_gcontent && count($groups) != count($excluded_groups)) {
       $allowed_groups['warnings']['restricted'] = $this->t("You don't have the needed permissions to edit this.");
     }
     return $allowed_groups;
