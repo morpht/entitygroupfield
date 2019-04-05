@@ -8,6 +8,7 @@
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
 
 /**
  * Implements hook_theme().
@@ -69,7 +70,7 @@ function gcontent_field_get_entity_types() {
     }
     $entity_type_definition = \Drupal::entityTypeManager()->getDefinition($plugin_definition['entity_type_id']);
     // Check if fields can be attached to the entity type.
-    if ($entity_type_definition->get('field_ui_base_route')) {
+    if ($entity_type_definition->entityClassImplements(FieldableEntityInterface::class)) {
       $entity_types[$plugin_definition['entity_type_id']] = (string) $entity_type_definition->getLabel();
     }
   }
