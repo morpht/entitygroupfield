@@ -698,9 +698,16 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
       }
     }
 
-    $field_state = static::getWidgetState($this->fieldParents, $field_name, $form_state);
     $groups = $this->getPluginGroups($entity_plugin_id);
-    $allowed_groups = $this->getAllowedGroups($groups, $entity_plugin_id, $field_state);
+    // Getting groups cardinality.
+    if (!isset($field_state['groups_cardinality'])) {
+      $groups_cardinality = $this->getGroupsCardinality($groups, $entity_plugin_id);
+      $field_state = static::getWidgetState($this->fieldParents, $field_name, $form_state);
+      $field_state['groups_cardinality'] = $groups_cardinality;
+      static::setWidgetState($this->fieldParents, $field_name, $form_state, $field_state);
+    }
+    $existing_gcontent = $field_state['gcontent'] ?? [];
+    $allowed_groups = $this->getAllowedGroups($groups, $entity_plugin_id, $existing_gcontent, $field_state['groups_cardinality']);
 
     if (($this->realItemCount < $cardinality || $cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && !$form_state->isProgrammed()) {
       $elements['add_more'] = $this->buildAddActions($allowed_groups, $entity_plugin_id);
@@ -1079,19 +1086,42 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
   }
 
   /**
+   * Returns the groups entity cardinality.
+   *
+   * @param array $groups
+   *   The group allowed by current entity plugin id.
+   * @param string $plugin_id
+   *   The current entity plugin id.
+   *
+   * @return array
+   *   The groups entity cardinality array.
+   */
+  private function getGroupsCardinality(array $groups, $plugin_id) {
+    $groups_cardinality = [];
+    if ($groups) {
+      foreach ($groups as $group) {
+        $groups_cardinality[$group->id()] = $group->getGroupType()->getContentPlugin($plugin_id)->getEntityCardinality();
+      }
+    }
+    return $groups_cardinality;
+  }
+
+  /**
    * Get useful lists for group options form elements.
    *
    * @param array $groups
    *   The array of allowed groups.
    * @param string $entity_plugin_id
    *   The plugin id to get existing content.
-   * @param array $field_state
-   *   The field state.
+   * @param array $existing_gcontent
+   *   The existing group content.
+   * @param array $groups_cardinality
+   *   The groups entity cardinality array.
    *
    * @return array
    *   The Lists.
    */
-  private function getAllowedGroups(array $groups, $entity_plugin_id, array $field_state) {
+  private function getAllowedGroups(array $groups, $entity_plugin_id, array $existing_gcontent, array $groups_cardinality) {
     $all_restricted = TRUE;
     /** @var \Drupal\Core\Session\AccountInterface $account */
     $account = $this->currentUser->getAccount();
@@ -1108,9 +1138,9 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
 
     // Checking cardinality.
     $excluded_groups = [];
-    if (isset($field_state['gcontent'])) {
+    if ($existing_gcontent) {
       $groups_ammounts = [];
-      foreach ($field_state['gcontent'] as $gcontent) {
+      foreach ($existing_gcontent as $gcontent) {
         // Not count the content if was removed.
         if ($gcontent['mode'] == 'removed') {
           continue;
@@ -1119,12 +1149,7 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
         if ($gcontent_entity) {
           $gid = $gcontent_entity->gid->getString();
           $groups_ammounts[$gid] = isset($groups_ammounts[$gid]) ? $groups_ammounts[$gid] + 1 : 1;
-          $plugin = $gcontent_entity->getContentPlugin();
-          $entity_cardinality = $plugin->getEntityCardinality() ?? 1;
-          if (!$entity_cardinality) {
-            continue;
-          }
-          elseif ($groups_ammounts[$gid] >= $entity_cardinality) {
+          if ($groups_ammounts[$gid] >= $groups_cardinality[$gid]) {
             $excluded_groups[] = $gid;
           }
         }
@@ -1154,8 +1179,8 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
     }
 
     // Add warning when all restricted.
-    if ($all_restricted) {
-      $allowed_groups['warnings']['restricted'] = $this->t("You don't the needed permissions to edit this.");
+    if ($all_restricted && count($groups) != count($excluded_groups)) {
+      $allowed_groups['warnings']['restricted'] = $this->t("You don't have the needed permissions to edit this.");
     }
     return $allowed_groups;
   }
