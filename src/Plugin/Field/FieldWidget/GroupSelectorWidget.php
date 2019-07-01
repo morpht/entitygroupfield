@@ -261,7 +261,8 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
       // Checking if can update own.
       if (!$can_edit) {
         $group_content_owner = $gcontent_entity->getOwnerId();
-        // In case of membership the value to compare is the entity instead owner.
+        // In case of membership the value to compare is the entity
+        // instead owner.
         if ($entity_plugin_id == 'group_membership') {
           $group_content_owner = $gcontent_entity->getEntity()->id();
         }
@@ -272,8 +273,6 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
 
       $item_bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo($target_type);
       if (isset($item_bundles[$gcontent_entity->bundle()])) {
-        $bundle_info = $item_bundles[$gcontent_entity->bundle()];
-
         $element['top'] = [
           '#type' => 'container',
           '#weight' => -500,
@@ -605,8 +604,8 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
           $items->appendItem();
         }
 
-        // For multiple fields, title and description are handled by the wrapping
-        // table.
+        // For multiple fields, title and description are handled by the
+        // wrapping table.
         $element = [
           '#title' => $is_multiple ? '' : $title,
           '#description' => $is_multiple ? '' : $description,
@@ -622,7 +621,7 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
               '#type' => 'weight',
               '#title' => $this->t('Weight for row @number', ['@number' => $delta + 1]),
               '#title_display' => 'invisible',
-              // Note: this 'delta' is the FAPI #type 'weight' element's property.
+              // This 'delta' is the FAPI #type 'weight' element's property.
               '#delta' => $max,
               '#default_value' => $items[$delta]->_weight ?: $delta,
               '#weight' => 100,
@@ -680,7 +679,7 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
             '#markup' => $this->t('Not yet added to groups.'),
             '#prefix' => '<em>',
             '#suffix' => '</em>',
-          ]
+          ],
         ],
       ];
 
@@ -853,7 +852,6 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
       '#type' => 'container',
     ];
     $field_name = $this->fieldDefinition->getName();
-    $title = $this->fieldDefinition->getLabel();
 
     $add_more_elements['add_relation'] = [
       '#title' => $this->t('Group'),
@@ -933,9 +931,8 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
       'add_more',
       'add_relation',
     ]);
-    $plugin_id_parts = explode(':', $widget_state['entity_plugin_id']);
     $group = \Drupal::entityTypeManager()->getStorage('group')->load($selected_group);
-    $group_content_type_id = $group->bundle() . '-' . implode('-', $plugin_id_parts);
+    $group_content_type_id = $group->getGroupType()->getContentPlugin($widget_state['entity_plugin_id'])->getContentTypeConfigId();
     $widget_state['selected_group'] = $selected_group;
     $widget_state['selected_bundle'] = $group_content_type_id;
 
