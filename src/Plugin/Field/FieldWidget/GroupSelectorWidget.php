@@ -806,6 +806,11 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
    *   The form element array.
    */
   protected function buildAutocompleteAddMode($allowed_groups) {
+    // If there are no available groups, don't build a form element.
+    if (empty($allowed_groups)) {
+      return [];
+    }
+
     // Hide the button when translating.
     $add_more_elements = [
       '#type' => 'container',
@@ -847,6 +852,11 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
    *   The form element array.
    */
   protected function buildSelectAddMode($allowed_groups) {
+    // If there are no available groups, don't build a form element.
+    if (empty($allowed_groups)) {
+      return [];
+    }
+
     // Hide the button when translating.
     $add_more_elements = [
       '#type' => 'container',
