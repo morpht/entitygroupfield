@@ -42,7 +42,7 @@ function gcontent_field_token_info() {
         $info['tokens']["list<$field_token_name>"][$delta] = [
           'name' => t('@type type with delta @delta', ['@type' => 'Group content', '@delta' => $delta]),
           'module' => 'token',
-          'ty pe' => $field_token_name,
+          'type' => $field_token_name,
         ];
       }
 
