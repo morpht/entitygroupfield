@@ -246,7 +246,7 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
         }
       }
       else {
-        $can_delete = $host->isNew() ?? $group->hasPermission("delete any $entity_plugin_id content", $account);
+        $can_delete = $host->isNew() ? FALSE : $group->hasPermission("delete any $entity_plugin_id content", $account);
         $can_edit = $group->hasPermission("update any $entity_plugin_id content", $account);
       }
       // Checking if can delete own.
@@ -704,7 +704,7 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
       $field_state['groups_cardinality'] = $groups_cardinality;
       static::setWidgetState($this->fieldParents, $field_name, $form_state, $field_state);
     }
-    $existing_gcontent = $field_state['gcontent'] ?? [];
+    $existing_gcontent = isset($field_state['gcontent']) ? $field_state['gcontent'] : [];
     $allowed_groups = $this->getAllowedGroups($groups, $entity_plugin_id, $existing_gcontent, $field_state['groups_cardinality']);
 
     if (($this->realItemCount < $cardinality || $cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && !$form_state->isProgrammed()) {
@@ -1151,7 +1151,7 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
         if ($gcontent['mode'] == 'removed') {
           continue;
         }
-        $gcontent_entity = $gcontent['entity'] ?? FALSE;
+        $gcontent_entity = isset($gcontent['entity']) ? $gcontent['entity'] : FALSE;
         if ($gcontent_entity) {
           $gid = $gcontent_entity->gid->getString();
           $groups_ammounts[$gid] = isset($groups_ammounts[$gid]) ? $groups_ammounts[$gid] + 1 : 1;
