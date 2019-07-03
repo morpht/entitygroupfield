@@ -22,7 +22,7 @@ use Drupal\Core\Entity\EntityRepository;
  *
  * @FieldWidget(
  *   id = "group_selector_widget",
- *   label = @Translation("Group Selector"),
+ *   label = @Translation("Group selector"),
  *   field_types = {
  *     "entity_reference"
  *   }
