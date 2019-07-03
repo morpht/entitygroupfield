@@ -30,7 +30,7 @@ function gcontent_field_entity_base_field_info(EntityTypeInterface $entity_type)
     // Adding field to entity types.
     if (array_key_exists($entity_type->id(), $entity_types)) {
       $entity_field_label = \Drupal::config('gcontent_field.settings')->get('entity_field_label');
-      $field_label = isset($entity_field_label[$entity_type->id()]) ? $entity_field_label[$entity_type->id()] :  t('Groups');
+      $field_label = isset($entity_field_label[$entity_type->id()]) ? $entity_field_label[$entity_type->id()] : t('Groups');
       $fields['group_content'] = BaseFieldDefinition::create('entity_reference')
         ->setName('group_content')
         ->setTargetEntityTypeId($entity_type->id())

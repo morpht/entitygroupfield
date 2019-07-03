@@ -936,7 +936,8 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
     if ($widget_state['real_item_count'] < $element['#cardinality'] || $element['#cardinality'] == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) {
       $widget_state['items_count']++;
     }
-    $parent_keys = array_merge($parents, [$field_name, 'add_more', 'add_relation']);
+    $local_keys = [$field_name, 'add_more', 'add_relation'];
+    $parent_keys = array_merge($parents, $local_keys);
     $selected_group = NestedArray::getValue($form_state->getValues(), $parent_keys);
     $group = \Drupal::entityTypeManager()->getStorage('group')->load($selected_group);
     $group_content_type_id = $group->getGroupType()->getContentPlugin($widget_state['entity_plugin_id'])->getContentTypeConfigId();

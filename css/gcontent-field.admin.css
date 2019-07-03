@@ -1,7 +1,7 @@
 .js .field--widget-group-selector-widget .dropbutton-wrapper {
   display: inline-flex;
-  padding-right: 0em;
-  margin-right: 0em;
+  padding-right: 0;
+  margin-right: 0;
   /* Override 600px breakpoint from core. */
   width: auto;
 }
@@ -15,7 +15,7 @@
 }
 
 .js .field--widget-group-selector-widget td {
-  padding: 10px 0px 10px 0px;
+  padding: 10px 0;
 }
 
 .js .field--widget-group-selector-widget .field-multiple-drag {
