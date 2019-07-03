@@ -3,37 +3,13 @@
 namespace Drupal\gcontent_field\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Cache\CacheableMetadata;
-use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceEntityFormatter;
 use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
-use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\TypedData\TranslatableInterface;
 
 /**
- * Plugin implementation of the 'parent_group_formatter' formatter.
- *
- * @FieldFormatter(
- *   id = "parent_group_formatter",
- *   label = @Translation("Parent group entity"),
- *   field_types = {
- *     "entity_reference"
- *   }
- * )
+ * Helper method shared among all parent group field formatters.
  */
-class ParentGroupFormatter extends EntityReferenceEntityFormatter {
-
-  /**
-   * {@inheritdoc}
-   */
-  public function settingsForm(array $form, FormStateInterface $form_state) {
-    $elements['view_mode'] = [
-      '#type' => 'select',
-      '#options' => $this->entityDisplayRepository->getViewModeOptions('group'),
-      '#title' => t('View mode'),
-      '#default_value' => $this->getSetting('view_mode'),
-      '#required' => TRUE,
-    ];
-
-    return $elements;
-  }
+trait ParentGroupFormatterGetEntitiesTrait {
 
   /**
    * {@inheritdoc}
