@@ -3,7 +3,6 @@
 namespace Drupal\gcontent_field\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceLabelFormatter;
-use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Plugin implementation of the 'parent_group_label_formatter' formatter.

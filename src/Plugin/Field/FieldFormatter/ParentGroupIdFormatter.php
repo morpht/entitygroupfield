@@ -3,7 +3,6 @@
 namespace Drupal\gcontent_field\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceIdFormatter;
-use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Plugin implementation of the 'parent_group_id_formatter' formatter.
