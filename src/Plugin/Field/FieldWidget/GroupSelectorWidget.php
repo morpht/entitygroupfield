@@ -1189,4 +1189,12 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
     return $allowed_groups;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public static function isApplicable(FieldDefinitionInterface $field_definition) {
+    // Hackity-hack: only attach the magic widget to our specific, custom field.
+    return $field_definition->getName() === 'group_content' && $field_definition->getType() === 'entity_reference';
+  }
+
 }

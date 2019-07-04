@@ -18,6 +18,6 @@ use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceIdFormatter;
  */
 class ParentGroupIdFormatter extends EntityReferenceIdFormatter {
 
-  use ParentGroupFormatterGetEntitiesTrait;
+  use ParentGroupFormatterTrait;
 
 }

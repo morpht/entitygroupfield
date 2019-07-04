@@ -18,6 +18,6 @@ use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceLabelFormatter;
  */
 class ParentGroupLabelFormatter extends EntityReferenceLabelFormatter {
 
-  use ParentGroupFormatterGetEntitiesTrait;
+  use ParentGroupFormatterTrait;
 
 }

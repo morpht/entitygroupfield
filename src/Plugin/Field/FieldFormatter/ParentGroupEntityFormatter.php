@@ -18,7 +18,8 @@ use Drupal\Core\Form\FormStateInterface;
  * )
  */
 class ParentGroupEntityFormatter extends EntityReferenceEntityFormatter {
-  use ParentGroupFormatterGetEntitiesTrait;
+
+  use ParentGroupFormatterTrait;
 
   /**
    * {@inheritdoc}
