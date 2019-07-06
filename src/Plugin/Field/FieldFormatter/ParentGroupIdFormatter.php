@@ -12,7 +12,7 @@ use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceIdFormatter;
  *   label = @Translation("Parent group ID"),
  *   description = @Translation("Display the ID of the parent groups."),
  *   field_types = {
- *     "entity_reference"
+ *     "group_content"
  *   }
  * )
  */

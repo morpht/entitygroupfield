@@ -31,7 +31,7 @@ function gcontent_field_entity_base_field_info(EntityTypeInterface $entity_type)
     if (array_key_exists($entity_type->id(), $entity_types)) {
       $entity_field_label = \Drupal::config('gcontent_field.settings')->get('entity_field_label');
       $field_label = isset($entity_field_label[$entity_type->id()]) ? $entity_field_label[$entity_type->id()] : t('Groups');
-      $fields['group_content'] = BaseFieldDefinition::create('entity_reference')
+      $fields['group_content'] = BaseFieldDefinition::create('group_content')
         ->setName('group_content')
         ->setTargetEntityTypeId($entity_type->id())
         ->setSetting('target_type', 'group_content')
@@ -55,6 +55,13 @@ function gcontent_field_entity_base_field_info(EntityTypeInterface $entity_type)
     }
   }
   return $fields;
+}
+
+/**
+ * Implements hook_field_formatter_info_alter().
+ */
+function gcontent_field_field_formatter_info_alter(array &$info) {
+  $info['entity_reference_entity_view']['field_types'][] = 'group_content';
 }
 
 /**

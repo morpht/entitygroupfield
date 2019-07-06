@@ -13,7 +13,7 @@ use Drupal\Core\Form\FormStateInterface;
  *   label = @Translation("Parent group rendered entity"),
  *   description = @Translation("Display the parent groups rendered by entity_view()."),
  *   field_types = {
- *     "entity_reference"
+ *     "group_content"
  *   }
  * )
  */

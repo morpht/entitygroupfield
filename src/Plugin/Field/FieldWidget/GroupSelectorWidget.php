@@ -24,7 +24,7 @@ use Drupal\Core\Entity\EntityRepository;
  *   id = "group_selector_widget",
  *   label = @Translation("Group selector"),
  *   field_types = {
- *     "entity_reference"
+ *     "group_content"
  *   }
  * )
  */
@@ -1187,14 +1187,6 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
       $allowed_groups['warnings']['restricted'] = $this->t("You don't have the needed permissions to edit this.");
     }
     return $allowed_groups;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function isApplicable(FieldDefinitionInterface $field_definition) {
-    // Hackity-hack: only attach the magic widget to our specific, custom field.
-    return $field_definition->getName() === 'group_content' && $field_definition->getType() === 'entity_reference';
   }
 
 }

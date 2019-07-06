@@ -4,21 +4,12 @@ namespace Drupal\gcontent_field\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
-use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\TypedData\TranslatableInterface;
 
 /**
  * Helper methods shared among all parent group field formatters.
  */
 trait ParentGroupFormatterTrait {
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function isApplicable(FieldDefinitionInterface $field_definition) {
-    // Hackity-hack: only allow the magic formatters on our custom field.
-    return $field_definition->getName() === 'group_content' && $field_definition->getType() === 'entity_reference';
-  }
 
   /**
    * {@inheritdoc}
