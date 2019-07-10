@@ -11,7 +11,8 @@
 function gcontent_field_token_info() {
   if ($entity_types = gcontent_field_get_entity_types()) {
     $field_name = 'group_content';
-    foreach ($entity_types as $entity_type_id) {
+    $entity_types_ids = array_keys($entity_types);
+    foreach ($entity_types_ids as $entity_type_id) {
       $token_type = $entity_type_id;
       $field_token_name = $token_type . '-' . $field_name;
       $info['tokens'][$token_type][$field_name] = [

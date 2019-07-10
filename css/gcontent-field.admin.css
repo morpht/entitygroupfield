@@ -1,4 +1,4 @@
-.js .field--widget-group-selector-widget .dropbutton-wrapper {
+.field--widget-group-selector-widget .dropbutton-wrapper {
   display: inline-flex;
   padding-right: 0;
   margin-right: 0;
@@ -6,36 +6,36 @@
   width: auto;
 }
 
-.js .field--widget-group-selector-widget .dropbutton-widget {
+.field--widget-group-selector-widget .dropbutton-widget {
   position: relative;
 }
 
-.js .field--widget-group-selector-widget .field-multiple-table {
+.field--widget-group-selector-widget .field-multiple-table {
   margin-bottom: 10px;
 }
 
-.js .field--widget-group-selector-widget td {
+.field--widget-group-selector-widget td {
   padding: 10px 0;
 }
 
-.js .field--widget-group-selector-widget .field-multiple-drag {
+.field--widget-group-selector-widget .field-multiple-drag {
   vertical-align: top;
 }
-.js .field--widget-group-selector-widget .draggable .tabledrag-handle {
+.field--widget-group-selector-widget .draggable .tabledrag-handle {
   padding-right: 0;
   margin-left: 0;
 }
-.js .field--widget-group-selector-widget .tabledrag-handle .handle {
+.field--widget-group-selector-widget .tabledrag-handle .handle {
   margin-left: 0;
   margin-right: 0;
   padding-right: 0.2em;
 }
-.js .gcontent-type-top {
+.gcontent-type-top {
   display: flex;
   flex-wrap: nowrap;
   justify-content: space-between;
 }
-.js .gcontent-type-title {
+.gcontent-type-title {
   flex-basis: 25%;
   min-width: 80px;
 
@@ -43,10 +43,10 @@
   text-overflow: ellipsis;
   overflow: hidden;
 }
-.js .field--widget-group-selector-widget .delta-order {
+.field--widget-group-selector-widget .delta-order {
   padding-right: 10px;
   text-align: right;
 }
-.js .field--widget-group-selector-widget .dropbutton-action .ajax-progress {
+.field--widget-group-selector-widget .dropbutton-action .ajax-progress {
   left: -115px;
 }
