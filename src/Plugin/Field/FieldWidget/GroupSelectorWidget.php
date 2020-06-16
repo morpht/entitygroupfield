@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gcontent_field\Plugin\Field\FieldWidget;
+namespace Drupal\entitygroupfield\Plugin\Field\FieldWidget;
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Field\FieldItemListInterface;
@@ -466,7 +466,7 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
 
             $element['top']['links'] = $links;
             if ($show_links > 1) {
-              $element['top']['links']['#theme_wrappers'] = ['dropbutton_wrapper', 'gc_field_dropbutton_wrapper'];
+              $element['top']['links']['#theme_wrappers'] = ['dropbutton_wrapper', 'entitygroupfield_dropbutton_wrapper'];
               $element['top']['links']['prefix'] = [
                 '#markup' => '<ul class="dropbutton">',
                 '#weight' => -999,
@@ -477,7 +477,7 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
               ];
             }
             else {
-              $element['top']['links']['#theme_wrappers'] = ['gc_field_dropbutton_wrapper'];
+              $element['top']['links']['#theme_wrappers'] = ['entitygroupfield_dropbutton_wrapper'];
               foreach ($links as $key => $link_item) {
                 unset($element['top']['links'][$key]['#prefix']);
                 unset($element['top']['links'][$key]['#suffix']);
@@ -710,7 +710,7 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
     if (($this->realItemCount < $cardinality || $cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && !$form_state->isProgrammed()) {
       $elements['add_more'] = $this->buildAddActions($allowed_groups, $entity_plugin_id);
     }
-    $elements['#attached']['library'][] = 'gcontent_field/gcontent_field.admin';
+    $elements['#attached']['library'][] = 'entitygroupfield/entitygroupfield.admin';
 
     return $elements;
   }

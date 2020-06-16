@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gcontent_field\Plugin\EntityReferenceSelection;
+namespace Drupal\entitygroupfield\Plugin\EntityReferenceSelection;
 
 use Drupal\Core\Entity\Plugin\EntityReferenceSelection\DefaultSelection;
 

@@ -1,4 +1,4 @@
-name: 'Group Content Field'
+name: 'Entity Group Field'
 description: 'Defines a field to view and edit the groups associated with content.'
 package: 'Group'
 type: 'module'

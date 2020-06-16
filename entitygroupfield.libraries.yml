@@ -1,4 +1,4 @@
-gcontent_field.admin:
+entitygroupfield.admin:
   dependencies:
       - core/jquery
       - core/drupal
@@ -9,4 +9,4 @@ gcontent_field.admin:
       - core/drupal.dropbutton
   css:
     theme:
-      css/gcontent-field.admin.css: {}
+      css/entitygroupfield.admin.css: {}

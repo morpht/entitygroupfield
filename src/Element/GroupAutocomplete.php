@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gcontent_field\Element;
+namespace Drupal\entitygroupfield\Element;
 
 use Drupal\Core\Entity\EntityReferenceSelection\SelectionInterface;
 use Drupal\Core\Form\FormStateInterface;

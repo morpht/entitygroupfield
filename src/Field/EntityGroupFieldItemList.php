@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gcontent_field\Field;
+namespace Drupal\entitygroupfield\Field;
 
 use Drupal\Core\Field\EntityReferenceFieldItemList;
 use Drupal\Core\TypedData\ComputedItemListTrait;
@@ -12,7 +12,7 @@ use Drupal\group\Entity\GroupContent;
 /**
  * A computed property for the related groups.
  */
-class GcontentFieldItemList extends EntityReferenceFieldItemList {
+class EntityGroupFieldItemList extends EntityReferenceFieldItemList {
 
   // Support non-database views. Ex: Search API Solr.
   use DependencySerializationTrait;
@@ -26,7 +26,7 @@ class GcontentFieldItemList extends EntityReferenceFieldItemList {
   protected $groupContentPluginManager;
 
   /**
-   * Constructs a GcontentFieldItemList object.
+   * Constructs a EntityGroupFieldItemList object.
    *
    * @param \Drupal\Core\TypedData\DataDefinitionInterface $definition
    *   The data definition.
@@ -73,8 +73,8 @@ class GcontentFieldItemList extends EntityReferenceFieldItemList {
   /**
    * {@inheritdoc}
    *
-   * We need to override the presave to avoid gcontent saving without
-   * host entity id generated.
+   * We need to override the presave to avoid saving without the host entity id
+   * generated.
    */
   public function preSave() {
   }
@@ -85,21 +85,21 @@ class GcontentFieldItemList extends EntityReferenceFieldItemList {
   public function postSave($update) {
     if ($this->valueComputed) {
       $host_entity = $this->getEntity();
-      $gcontent_ids = [];
+      $group_content_ids = [];
       foreach ($this->getIterator() as $delta => $item) {
-        $gcontent_entity = $item->entity;
-        $gcontent_entity->entity_id = $host_entity->id();
+        $group_content_entity = $item->entity;
+        $group_content_entity->entity_id = $host_entity->id();
         // Saving entities.
         if (isset($item->needs_save)) {
-          $gcontent_entity->save();
+          $group_content_entity->save();
         }
-        $gcontent_ids[] = $gcontent_entity->id();
+        $group_content_ids[] = $group_content_entity->id();
       }
       // Deleting entities.
       $group_contents = GroupContent::loadByEntity($host_entity);
-      foreach ($group_contents as $gcontent_id => $gcontent_entity) {
-        if (!in_array($gcontent_id, $gcontent_ids)) {
-          $gcontent_entity->delete();
+      foreach ($group_contents as $group_content_id => $group_content_entity) {
+        if (!in_array($group_content_id, $group_content_ids)) {
+          $group_content_entity->delete();
         }
       }
     }

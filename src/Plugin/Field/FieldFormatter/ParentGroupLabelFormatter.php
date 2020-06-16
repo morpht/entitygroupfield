@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gcontent_field\Plugin\Field\FieldFormatter;
+namespace Drupal\entitygroupfield\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceLabelFormatter;
 

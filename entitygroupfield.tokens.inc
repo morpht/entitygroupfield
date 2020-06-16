@@ -2,14 +2,14 @@
 
 /**
  * @file
- * Gcontent field tokens.
+ * Entity Group Field tokens.
  */
 
 /**
  * Implements hook_token_info().
  */
-function gcontent_field_token_info() {
-  if ($entity_types = gcontent_field_get_entity_types()) {
+function entitygroupfield_token_info() {
+  if ($entity_types = entitygroupfield_get_entity_types()) {
     $field_name = 'group_content';
     $entity_types_ids = array_keys($entity_types);
     foreach ($entity_types_ids as $entity_type_id) {
