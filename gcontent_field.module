@@ -75,10 +75,11 @@ function gcontent_field_get_entity_types() {
     if (in_array($plugin_definition['entity_type_id'], $entity_types)) {
       continue;
     }
-    $entity_type_definition = \Drupal::entityTypeManager()->getDefinition($plugin_definition['entity_type_id']);
-    // Check if fields can be attached to the entity type.
-    if ($entity_type_definition->entityClassImplements(FieldableEntityInterface::class)) {
-      $entity_types[$plugin_definition['entity_type_id']] = (string) $entity_type_definition->getLabel();
+    if ($entity_type_definition = \Drupal::entityTypeManager()->getDefinition($plugin_definition['entity_type_id'], FALSE)) {
+      // Check if fields can be attached to the entity type.
+      if ($entity_type_definition->entityClassImplements(FieldableEntityInterface::class)) {
+        $entity_types[$plugin_definition['entity_type_id']] = (string) $entity_type_definition->getLabel();
+      }
     }
   }
   return $entity_types;
