@@ -1075,7 +1075,7 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
    * @return array
    *   The list of group entities.
    */
-  private function getPluginGroups($plugin_id) {
+  protected function getPluginGroups($plugin_id) {
     $groups = [];
     $group_type_map = $this->groupContentPluginManager->getGroupTypePluginMap();
     foreach ($group_type_map as $group_type_id => $group_plugins_enabled) {
@@ -1100,7 +1100,7 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
    * @return array
    *   The groups entity cardinality array.
    */
-  private function getGroupsCardinality(array $groups, $plugin_id) {
+  protected function getGroupsCardinality(array $groups, $plugin_id) {
     $groups_cardinality = [];
     if ($groups) {
       foreach ($groups as $group) {
@@ -1125,7 +1125,7 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
    * @return array
    *   The Lists.
    */
-  private function getAllowedGroups(array $groups, $entity_plugin_id, array $existing_gcontent, array $groups_cardinality) {
+  protected function getAllowedGroups(array $groups, $entity_plugin_id, array $existing_gcontent, array $groups_cardinality) {
     $all_restricted = TRUE;
     /** @var \Drupal\Core\Session\AccountInterface $account */
     $account = $this->currentUser->getAccount();
