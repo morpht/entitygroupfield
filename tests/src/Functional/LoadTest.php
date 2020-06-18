@@ -8,7 +8,7 @@ use Drupal\Tests\BrowserTestBase;
 /**
  * Basic test to ensure that main page loads with module enabled.
  *
- * @group datetime_extras
+ * @group entitygroupfield
  */
 class LoadTest extends BrowserTestBase {
 
@@ -19,7 +19,6 @@ class LoadTest extends BrowserTestBase {
    */
   protected static $modules = [
     'group',
-    'variationcache',
     'entitygroupfield',
   ];
 
