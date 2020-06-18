@@ -29,8 +29,7 @@ function entitygroupfield_entity_base_field_info(EntityTypeInterface $entity_typ
   if ($entity_types = entitygroupfield_get_entity_types()) {
     // Adding field to entity types.
     if (array_key_exists($entity_type->id(), $entity_types)) {
-      $entity_field_label = \Drupal::config('entitygroupfield.settings')->get('entity_field_label');
-      $field_label = isset($entity_field_label[$entity_type->id()]) ? $entity_field_label[$entity_type->id()] : t('Groups');
+      $field_label = $entity_type->id() === 'user' ? t('Group memberships') : t('Groups');
       $fields['group_content'] = BaseFieldDefinition::create('group_content')
         ->setName('group_content')
         ->setTargetEntityTypeId($entity_type->id())
