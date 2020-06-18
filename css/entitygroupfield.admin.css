@@ -38,7 +38,6 @@
 .gcontent-type-title {
   flex-basis: 25%;
   min-width: 80px;
-
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
