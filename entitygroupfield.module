@@ -42,13 +42,13 @@ function entitygroupfield_entity_base_field_info(EntityTypeInterface $entity_typ
         ->setClass('\Drupal\entitygroupfield\Field\EntityGroupFieldItemList')
         ->setDisplayConfigurable('form', TRUE)
         ->setDisplayOptions('form', [
-          'type' => 'hidden',
+          'region' => 'hidden',
           'weight' => 50,
         ])
         ->setDisplayConfigurable('view', TRUE)
         ->setDisplayOptions('view', [
           'label' => 'hidden',
-          'type' => 'hidden',
+          'region' => 'hidden',
           'weight' => 50,
         ]);
     }
