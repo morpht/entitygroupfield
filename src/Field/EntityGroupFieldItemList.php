@@ -4,8 +4,6 @@ namespace Drupal\entitygroupfield\Field;
 
 use Drupal\Core\Field\EntityReferenceFieldItemList;
 use Drupal\Core\TypedData\ComputedItemListTrait;
-use Drupal\Core\TypedData\DataDefinitionInterface;
-use Drupal\Core\TypedData\TypedDataInterface;
 use Drupal\group\Entity\GroupContent;
 
 /**
