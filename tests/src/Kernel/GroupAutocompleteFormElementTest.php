@@ -49,12 +49,20 @@ class GroupAutocompleteFormElementTest extends EntityGroupFieldKernelTestBase im
     $form['group_autocomplete_all'] = [
       '#title' => 'Group (all)',
       '#type' => 'group_autocomplete',
+      '#target_type' => 'group',
+      '#selection_handler' => 'group:group_content',
+      '#selection_settings' => ['allowed_groups' => []],
     ];
 
     $form['group_autocomplete_restricted'] = [
       '#title' => 'Group (restricted)',
       '#type' => 'group_autocomplete',
-      '#selection_settings' => ['excluded_groups' => [1, 2]],
+      '#target_type' => 'group',
+      '#selection_handler' => 'group:group_content',
+      '#selection_settings' => [
+        'allowed_groups' => [],
+        'excluded_groups' => [1, 2],
+      ],
     ];
 
     $form['submit'] = [
