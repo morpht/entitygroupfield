@@ -18,17 +18,9 @@ use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Entity\EntityRepository;
 
 /**
- * Plugin implementation of the 'group_selector_widget' widget.
- *
- * @FieldWidget(
- *   id = "group_selector_widget",
- *   label = @Translation("Group selector"),
- *   field_types = {
- *     "group_content"
- *   }
- * )
+ * Shared base class for Entity Group Field widget plugins.
  */
-class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginInterface {
+abstract class EntityGroupFieldWidgetBase extends WidgetBase implements ContainerFactoryPluginInterface {
 
   /**
    * The Group Content Plugin Manager.
@@ -91,7 +83,6 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
    */
   public static function defaultSettings() {
     return [
-      'widget' => 'autocomplete',
       'multiple' => TRUE,
       'required' => FALSE,
     ] + parent::defaultSettings();
@@ -103,15 +94,6 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $elements = [];
 
-    $elements['widget'] = [
-      '#type' => 'radios',
-      '#title' => t('Widget'),
-      '#default_value' => $this->getSetting('widget'),
-      '#options' => [
-        'select' => t('Select'),
-        'autocomplete' => t('Autocomplete'),
-      ],
-    ];
     $elements['multiple'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Multiple'),
@@ -131,7 +113,6 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
    */
   public function settingsSummary() {
     $summary = [];
-    $summary[] = $this->t('Widget: @widget', ['@widget' => $this->getSetting('widget')]);
     $summary[] = ($this->getSetting('multiple')) ? $this->t('Multiple: Yes') : $this->t('Multiple: No');
     $summary[] = ($this->getSetting('required')) ? $this->t('Required: Yes') : $this->t('Required: No');
     return $summary;
@@ -699,19 +680,10 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
       }
     }
 
-    $groups = $this->getPluginGroups($entity_plugin_id);
-    // Getting groups cardinality.
-    if (!isset($field_state['groups_cardinality'])) {
-      $groups_cardinality = $this->getGroupsCardinality($groups, $entity_plugin_id);
-      $field_state = static::getWidgetState($this->fieldParents, $field_name, $form_state);
-      $field_state['groups_cardinality'] = $groups_cardinality;
-      static::setWidgetState($this->fieldParents, $field_name, $form_state, $field_state);
-    }
     $existing_gcontent = isset($field_state['gcontent']) ? $field_state['gcontent'] : [];
-    $allowed_groups = $this->getAllowedGroups($groups, $entity_plugin_id, $existing_gcontent, $field_state['groups_cardinality']);
 
     if (($this->realItemCount < $cardinality || $cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && !$form_state->isProgrammed()) {
-      $elements['add_more'] = $this->buildAddActions($allowed_groups, $entity_plugin_id);
+      $elements['add_more'] = $this->buildAddActions($entity_plugin_id, $existing_gcontent);
     }
     $elements['#attached']['library'][] = 'entitygroupfield/entitygroupfield.admin';
 
@@ -768,112 +740,30 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
   }
 
   /**
-   * Add 'add more' button, if not working with a programmed form.
+   * Adds the 'add more' actions, if not working with a programmed form.
    *
    * @return array
    *   The form element array.
    */
-  protected function buildAddActions($allowed_groups, $entity_plugin_id) {
+  protected function buildAddActions($entity_plugin_id, array $existing_gcontent) {
     if (!$entity_plugin_id) {
-      $add_more_elements['info'] = [
+      $elements['info'] = [
         '#type' => 'container',
         '#markup' => $this->t('There is no Group content plugin available for this entity type.'),
         '#attributes' => ['class' => ['messages', 'messages--warning']],
       ];
-      return $add_more_elements;
-    }
-
-    // Warnings.
-    if ($allowed_groups['warnings']) {
-      foreach ($allowed_groups['warnings'] as $type => $message) {
-        $add_more_elements['info'] = [
-          '#type' => 'container',
-          '#markup' => $message,
-          '#attributes' => ['class' => ['messages', 'messages--warning']],
-        ];
-        return $add_more_elements;
-      }
-    }
-
-    if ($this->getSetting('widget') == 'autocomplete') {
-      return $this->buildAutocompleteAddMode($allowed_groups['autocomplete_allowed_groups']);
-    }
-
-    return $this->buildSelectAddMode($allowed_groups['select_allowed_groups']);
-  }
-
-  /**
-   * Builds autocomplete for adding new gcontent.
-   *
-   * @return array
-   *   The form element array.
-   */
-  protected function buildAutocompleteAddMode($allowed_groups) {
-    // If there are no available groups, don't build a form element.
-    if (empty($allowed_groups)) {
-      return [];
+      return $elements;
     }
 
     // Hide the button when translating.
-    $add_more_elements = [
-      '#type' => 'container',
-    ];
-    $field_name = $this->fieldDefinition->getName();
-    $title = $this->fieldDefinition->getLabel();
-
-    $add_more_elements['add_relation'] = [
-      '#title' => $this->t('Group Name'),
-      '#type' => 'group_autocomplete',
-      '#target_type' => 'group',
-      '#selection_handler' => 'group:group_content',
-      '#selection_settings' => ['allowed_groups' => $allowed_groups],
-    ];
-
-    $add_more_elements['add_more_button'] = [
-      '#type' => 'submit',
-      '#name' => strtr($this->fieldIdPrefix, '-', '_') . '_add_more',
-      '#value' => $this->t('Add to Group'),
-      '#attributes' => ['class' => ['field-add-more-submit']],
-      '#limit_validation_errors' => [
-        array_merge($this->fieldParents, [$field_name, 'add_more']),
-      ],
-      '#submit' => [[get_class($this), 'addMoreSubmit']],
-      '#validate' => [[get_class($this), 'addMoreValidate']],
-      '#ajax' => [
-        'callback' => [get_class($this), 'addMoreAjax'],
-        'wrapper' => $this->fieldWrapperId,
-        'effect' => 'fade',
-      ],
-    ];
-    return $add_more_elements;
-  }
-
-  /**
-   * Builds select for adding new gcontent.
-   *
-   * @return array
-   *   The form element array.
-   */
-  protected function buildSelectAddMode($allowed_groups) {
-    // If there are no available groups, don't build a form element.
-    if (empty($allowed_groups)) {
-      return [];
-    }
-
-    // Hide the button when translating.
-    $add_more_elements = [
+    $elements = [
       '#type' => 'container',
     ];
     $field_name = $this->fieldDefinition->getName();
 
-    $add_more_elements['add_relation'] = [
-      '#title' => $this->t('Group'),
-      '#type' => 'select',
-      '#description' => $this->t('Select a group'),
-      '#options' => $allowed_groups,
-    ];
+    $elements['add_relation'] = $this->buildAddElement($entity_plugin_id, $existing_gcontent);
 
-    $add_more_elements['add_more_button'] = [
+    $elements['add_more_button'] = [
       '#type' => 'submit',
       '#name' => strtr($this->fieldIdPrefix, '-', '_') . '_add_more',
       '#value' => $this->t('Add to Group'),
@@ -889,8 +779,22 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
       ],
     ];
 
-    return $add_more_elements;
+    return $elements;
+
   }
+
+  /**
+   * Builds form element for adding new group associations.
+   *
+   * @param string $entity_plugin_id
+   *   The plugin ID to get existing content.
+   * @param array $existing_gcontent
+   *   The existing group content.
+   *
+   * @return array
+   *   The form element array.
+   */
+  abstract protected function buildAddElement($entity_plugin_id, array $existing_gcontent);
 
   /**
    * {@inheritdoc}
@@ -942,6 +846,7 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
     $local_keys = [$field_name, 'add_more', 'add_relation'];
     $parent_keys = array_merge($parents, $local_keys);
     $selected_group = NestedArray::getValue($form_state->getValues(), $parent_keys);
+
     $group = \Drupal::entityTypeManager()->getStorage('group')->load($selected_group);
     $group_content_type_id = $group->getGroupType()->getContentPlugin($widget_state['entity_plugin_id'])->getContentTypeConfigId();
     $widget_state['selected_group'] = $selected_group;
@@ -955,30 +860,6 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
     static::setWidgetState($parents, $field_name, $form_state, $widget_state);
 
     $form_state->setRebuild();
-  }
-
-  /**
-   * Add to group autocomplete validation.
-   */
-  public static function addMoreValidate(array $form, FormStateInterface $form_state) {
-    $button = $form_state->getTriggeringElement();
-
-    // Go one level up in the form, to the widgets container.
-    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -2));
-    $field_name = $element['#field_name'];
-
-    $select_group_element = NestedArray::getValue($element, [
-      'add_more',
-      'add_relation',
-    ]);
-    $selected_group = NestedArray::getValue($form_state->getValues(), [
-      $field_name,
-      'add_more',
-      'add_relation',
-    ]);
-    if (!$selected_group) {
-      $form_state->setError($select_group_element, t('@field_name should not be empty', ['@field_name' => (string) $select_group_element['#title']]));
-    }
   }
 
   /**
@@ -1069,27 +950,27 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
     return $values;
   }
 
+
   /**
-   * Get a list of groups with an specific plugin installed.
+   * Gets a list of group types with a specific plugin installed.
    *
    * @param string $plugin_id
    *   The plugin id to filter the groups.
    *
-   * @return array
-   *   The list of group entities.
+   * @return string[]
+   *   An array of group type IDs.
    */
-  protected function getPluginGroups($plugin_id) {
-    $groups = [];
+  protected function getPluginGroupTypes($plugin_id) {
+    $group_types = [];
     $group_type_map = $this->groupContentPluginManager->getGroupTypePluginMap();
     foreach ($group_type_map as $group_type_id => $group_plugins_enabled) {
       foreach ($group_plugins_enabled as $group_plugin_id) {
         if ($group_plugin_id == $plugin_id) {
-          $groups_using_plugin = $this->entityTypeManager->getStorage('group')->loadByProperties(['type' => $group_type_id]);
-          $groups = array_merge($groups, $groups_using_plugin);
+          $group_types[] = $group_type_id;
         }
       }
     }
-    return $groups;
+    return array_unique($group_types);
   }
 
   /**
@@ -1111,85 +992,6 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
       }
     }
     return $groups_cardinality;
-  }
-
-  /**
-   * Get useful lists for group options form elements.
-   *
-   * @param array $groups
-   *   The array of allowed groups.
-   * @param string $entity_plugin_id
-   *   The plugin id to get existing content.
-   * @param array $existing_gcontent
-   *   The existing group content.
-   * @param array $groups_cardinality
-   *   The groups entity cardinality array.
-   *
-   * @return array
-   *   The Lists.
-   */
-  protected function getAllowedGroups(array $groups, $entity_plugin_id, array $existing_gcontent, array $groups_cardinality) {
-    $all_restricted = TRUE;
-    /** @var \Drupal\Core\Session\AccountInterface $account */
-    $account = $this->currentUser->getAccount();
-    $allowed_groups = [
-      'autocomplete_allowed_groups' => [],
-      'select_allowed_groups' => [],
-      'warnings' => [],
-    ];
-    // If empty group it means there are not groups with the plugin enabled.
-    if (empty($groups)) {
-      $allowed_groups['warnings']['empty_groups'] = $this->t('There are no groups or group types with the needed plugin enabled.');
-      return $allowed_groups;
-    }
-
-    // Checking cardinality.
-    $excluded_groups = [];
-    if ($existing_gcontent) {
-      $groups_ammounts = [];
-      foreach ($existing_gcontent as $gcontent) {
-        // Not count the content if was removed.
-        if ($gcontent['mode'] == 'removed') {
-          continue;
-        }
-        $gcontent_entity = isset($gcontent['entity']) ? $gcontent['entity'] : FALSE;
-        if ($gcontent_entity) {
-          $gid = $gcontent_entity->gid->getString();
-          $groups_ammounts[$gid] = isset($groups_ammounts[$gid]) ? $groups_ammounts[$gid] + 1 : 1;
-          if ($groups_ammounts[$gid] >= $groups_cardinality[$gid]) {
-            $excluded_groups[] = $gid;
-          }
-        }
-      }
-    }
-
-    /** @var \Drupal\group\Entity\Group $group */
-    foreach ($groups as $group) {
-      if (in_array($group->id(), $excluded_groups)) {
-        continue;
-      }
-      // Check creation permissions.
-      $can_create = FALSE;
-      if ($entity_plugin_id == 'group_membership') {
-        $can_create = $group->hasPermission("administer members", $account);
-      }
-      if (!$can_create) {
-        $can_create = $group->hasPermission("create $entity_plugin_id entity", $account);
-      }
-      if ($can_create) {
-        $all_restricted = FALSE;
-        $group_bundle = $group->bundle();
-        $group_bundle_label = $group->getGroupType()->label();
-        $allowed_groups['autocomplete_allowed_groups'][$group_bundle][$group->id()] = Html::escape($this->entityRepository->getTranslationFromContext($group)->label());
-        $allowed_groups['select_allowed_groups'][$group_bundle_label][$group->id()] = $this->entityRepository->getTranslationFromContext($group)->label();
-      }
-    }
-
-    // Add warning when all restricted.
-    if ($all_restricted && !$existing_gcontent && count($groups) != count($excluded_groups)) {
-      $allowed_groups['warnings']['restricted'] = $this->t("You don't have the needed permissions to edit this.");
-    }
-    return $allowed_groups;
   }
 
 }
