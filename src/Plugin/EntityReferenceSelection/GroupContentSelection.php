@@ -20,19 +20,17 @@ class GroupContentSelection extends DefaultSelection {
   /**
    * {@inheritdoc}
    */
-  public function getReferenceableEntities($match = NULL, $match_operator = 'CONTAINS', $limit = 0) {
-    $allowed_groups = $this->getConfiguration()['allowed_groups'];
-    $options = [];
+  protected function buildEntityQuery($match = NULL, $match_operator = 'CONTAINS') {
+    $configuration = $this->getConfiguration();
+    $target_type = $configuration['target_type'];
+    $entity_type = $this->entityTypeManager->getDefinition($target_type);
 
-    foreach ($allowed_groups as $bundle => $groups) {
-      foreach ($groups as $group_id => $group_name) {
-        if (preg_match('/' . $match . '/i', $group_name)) {
-          $options[$bundle][$group_id] = $group_name;
-        }
-      }
+    $query = parent::buildEntityQuery($match, $match_operator);
+    if (!empty($configuration['excluded_groups'])) {
+      $query->condition($entity_type->getKey('id'), $configuration['excluded_groups'], 'NOT IN');
     }
 
-    return $options;
+    return $query;
   }
 
 }
