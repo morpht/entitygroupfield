@@ -572,7 +572,7 @@ class GroupSelectorWidget extends WidgetBase implements ContainerFactoryPluginIn
     $host = $items->getEntity();
     $target_entity_type = $host->getEntityTypeId();
     $target_bundle = $host->bundle();
-    $entity_plugin_ids = $this->groupContentPluginManager->getPluginIdsByEntityType($target_entity_type, $target_bundle);
+    $entity_plugin_ids = entitygroupfield_get_group_content_plugin_ids($target_entity_type, $target_bundle);
     // @todo This array might have multiple values.
     // @see https://www.drupal.org/node/3153067
     $entity_plugin_id = reset($entity_plugin_ids);

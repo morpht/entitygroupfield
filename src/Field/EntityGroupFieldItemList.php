@@ -24,7 +24,7 @@ class EntityGroupFieldItemList extends EntityReferenceFieldItemList {
 
     // If this entity/bundle has no group content enabler plugins enabled,
     // there's no way there could be any group associations, so exit early.
-    if (!\Drupal::service('plugin.manager.group_content_enabler')->getPluginIdsByEntityType($this->getEntity()->getEntityTypeId(), $this->getEntity()->bundle())) {
+    if (!entitygroupfield_get_group_content_plugin_ids($this->getEntity()->getEntityTypeId(), $this->getEntity()->bundle())) {
       return NULL;
     }
 
