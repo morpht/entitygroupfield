@@ -750,15 +750,6 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
       '#type' => 'container',
     ];
 
-    if (!$entity_plugin_id) {
-      $elements['info'] = [
-        '#type' => 'container',
-        '#markup' => $this->t('There is no Group content plugin available for this entity type.'),
-        '#attributes' => ['class' => ['messages', 'messages--warning']],
-      ];
-      return $elements;
-    }
-
     $elements['add_relation'] = $this->buildAddElement($entity_plugin_id, $existing_gcontent);
     // If there's no add element, bail early and don't add buttons.
     if (empty($elements['add_relation'])) {
