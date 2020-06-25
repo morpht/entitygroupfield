@@ -5,7 +5,6 @@ namespace Drupal\Tests\entitygroupfield\Traits;
 /**
  * Provides group types and group entities for use in test classes.
  *
-
  * This trait provides protected members to store 2 group types ('a' and 'b')
  * and then 2 groups of each type. Calling initializeTestGroups() will
  * initialize everything and populate all the protected member variables.
