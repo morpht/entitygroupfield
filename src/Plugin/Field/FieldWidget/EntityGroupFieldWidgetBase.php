@@ -746,6 +746,10 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
    *   The form element array.
    */
   protected function buildAddActions($entity_plugin_id, array $existing_gcontent) {
+    $elements = [
+      '#type' => 'container',
+    ];
+
     if (!$entity_plugin_id) {
       $elements['info'] = [
         '#type' => 'container',
@@ -755,14 +759,13 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
       return $elements;
     }
 
-    // Hide the button when translating.
-    $elements = [
-      '#type' => 'container',
-    ];
-    $field_name = $this->fieldDefinition->getName();
-
     $elements['add_relation'] = $this->buildAddElement($entity_plugin_id, $existing_gcontent);
+    // If there's no add element, bail early and don't add buttons.
+    if (empty($elements['add_relation'])) {
+      return [];
+    }
 
+    $field_name = $this->fieldDefinition->getName();
     $elements['add_more_button'] = [
       '#type' => 'submit',
       '#name' => strtr($this->fieldIdPrefix, '-', '_') . '_add_more',
