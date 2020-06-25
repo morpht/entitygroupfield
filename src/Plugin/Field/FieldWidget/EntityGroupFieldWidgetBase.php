@@ -944,7 +944,6 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
     return $values;
   }
 
-
   /**
    * Gets a list of group types with a specific plugin installed.
    *

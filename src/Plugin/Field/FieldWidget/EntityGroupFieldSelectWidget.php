@@ -16,7 +16,7 @@ namespace Drupal\entitygroupfield\Plugin\Field\FieldWidget;
 class EntityGroupFieldSelectWidget extends EntityGroupFieldWidgetBase {
 
   /**
-   * {inheritdoc}
+   * {@inheritdoc}
    */
   protected function buildAddElement($entity_plugin_id, array $existing_gcontent) {
     // Get the list of all allowed groups, given the circumstances.
@@ -45,8 +45,8 @@ class EntityGroupFieldSelectWidget extends EntityGroupFieldWidgetBase {
    *   The list of group entities.
    */
   protected function getPluginGroups($plugin_id) {
-    return $this->entityTypeManager->getStorage('group')->
-      loadByProperties(['type' => $this->getPluginGroupTypes($plugin_id)]);
+    return $this->entityTypeManager->getStorage('group')
+      ->loadByProperties(['type' => $this->getPluginGroupTypes($plugin_id)]);
   }
 
   /**

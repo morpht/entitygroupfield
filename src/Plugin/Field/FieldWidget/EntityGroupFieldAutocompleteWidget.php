@@ -16,7 +16,7 @@ namespace Drupal\entitygroupfield\Plugin\Field\FieldWidget;
 class EntityGroupFieldAutocompleteWidget extends EntityGroupFieldWidgetBase {
 
   /**
-   * {inheritdoc}
+   * {@inheritdoc}
    */
   protected function buildAddElement($entity_plugin_id, array $existing_gcontent) {
     $excluded_groups = [];
