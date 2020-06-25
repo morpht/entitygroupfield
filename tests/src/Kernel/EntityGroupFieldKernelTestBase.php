@@ -4,6 +4,7 @@ namespace Drupal\Tests\entitygroupfield\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\Tests\user\Traits\UserCreationTrait;
+use Drupal\Tests\entitygroupfield\Traits\GroupCreationTrait;
 
 /**
  * Defines an abstract test base for entitygroupfield kernel tests.
@@ -11,6 +12,7 @@ use Drupal\Tests\user\Traits\UserCreationTrait;
 abstract class EntityGroupFieldKernelTestBase extends KernelTestBase {
 
   use UserCreationTrait;
+  use GroupCreationTrait;
 
   /**
    * {@inheritdoc}
@@ -24,13 +26,6 @@ abstract class EntityGroupFieldKernelTestBase extends KernelTestBase {
     'options',
     'entitygroupfield',
   ];
-
-  /**
-   * The entity type manager service.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
-   */
-  protected $entityTypeManager;
 
   /**
    * The content enabler plugin manager.
@@ -51,7 +46,6 @@ abstract class EntityGroupFieldKernelTestBase extends KernelTestBase {
     $this->installEntitySchema('group_content');
     $this->installConfig(['group']);
 
-    $this->entityTypeManager = $this->container->get('entity_type.manager');
     $this->groupContentPluginManager = $this->container->get('plugin.manager.group_content_enabler');
 
     // Create a default group type.
@@ -59,46 +53,6 @@ abstract class EntityGroupFieldKernelTestBase extends KernelTestBase {
       'id' => 'default',
       'label' => 'Default',
     ]);
-
-  }
-
-  /**
-   * Creates a group.
-   *
-   * @param array $values
-   *   (optional) The values used to create the entity.
-   *
-   * @return \Drupal\group\Entity\Group
-   *   The created group entity.
-   */
-  protected function createGroup(array $values = []) {
-    $storage = $this->entityTypeManager->getStorage('group');
-    $group = $storage->create($values + [
-      'type' => 'default',
-      'label' => $this->randomString(),
-    ]);
-    $group->enforceIsNew();
-    $storage->save($group);
-    return $group;
-  }
-
-  /**
-   * Creates a group type.
-   *
-   * @param array $values
-   *   (optional) The values used to create the entity.
-   *
-   * @return \Drupal\group\Entity\GroupType
-   *   The created group type entity.
-   */
-  protected function createGroupType(array $values = []) {
-    $storage = $this->entityTypeManager->getStorage('group_type');
-    $group_type = $storage->create($values + [
-      'id' => $this->randomMachineName(),
-      'label' => $this->randomString(),
-    ]);
-    $storage->save($group_type);
-    return $group_type;
   }
 
 }
