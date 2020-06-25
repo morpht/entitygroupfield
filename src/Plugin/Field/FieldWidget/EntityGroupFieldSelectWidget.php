@@ -72,22 +72,15 @@ class EntityGroupFieldSelectWidget extends EntityGroupFieldWidgetBase {
     /** @var \Drupal\Core\Session\AccountInterface $account */
     $account = $this->currentUser->getAccount();
 
-    // Checking cardinality.
-    $groups_cardinality = $this->getGroupsCardinality($groups, $entity_plugin_id);
     $excluded_groups = [];
     if ($existing_gcontent) {
-      $groups_ammounts = [];
       foreach ($existing_gcontent as $gcontent) {
         // Do not count the content if it was removed.
         if ($gcontent['mode'] == 'removed') {
           continue;
         }
         if (isset($gcontent['entity'])) {
-          $gid = $gcontent['entity']->gid->getString();
-          $groups_ammounts[$gid] = isset($groups_ammounts[$gid]) ? $groups_ammounts[$gid] + 1 : 1;
-          if ($groups_ammounts[$gid] >= $groups_cardinality[$gid]) {
-            $excluded_groups[] = $gid;
-          }
+          $excluded_groups[] = $gcontent['entity']->gid->getString();
         }
       }
     }

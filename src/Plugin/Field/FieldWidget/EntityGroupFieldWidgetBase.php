@@ -971,14 +971,14 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
    * Returns the groups entity cardinality.
    *
    * @param array $groups
-   *   The group allowed by current entity plugin id.
+   *   The groups to look up cardinality for.
    * @param string $plugin_id
-   *   The current entity plugin id.
+   *   The group content entity plugin ID to use.
    *
-   * @return array
-   *   The groups entity cardinality array.
+   * @return integer[]
+   *   Array of group entity cardinality values keyed by group ID.
    */
-  protected function getGroupsCardinality(array $groups, $plugin_id) {
+  protected function getGroupsEntityCardinality(array $groups, $plugin_id) {
     $groups_cardinality = [];
     if ($groups) {
       foreach ($groups as $group) {
