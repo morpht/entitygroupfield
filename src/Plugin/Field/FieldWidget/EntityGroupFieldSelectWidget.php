@@ -23,7 +23,7 @@ class EntityGroupFieldSelectWidget extends EntityGroupFieldWidgetBase {
     $allowed_groups = $this->getAllowedGroups($entity_plugin_id, $existing_gcontent);
 
     // If there are no available groups, don't build a form element.
-    if (empty($allowed_groups['groups'])) {
+    if (empty($allowed_groups)) {
       return [];
     }
 
@@ -31,7 +31,7 @@ class EntityGroupFieldSelectWidget extends EntityGroupFieldWidgetBase {
       '#title' => $this->t('Group'),
       '#type' => 'select',
       '#description' => $this->t('Select a group'),
-      '#options' => $allowed_groups['groups'],
+      '#options' => $allowed_groups,
     ];
   }
 
@@ -58,23 +58,19 @@ class EntityGroupFieldSelectWidget extends EntityGroupFieldWidgetBase {
    *   The existing group content.
    *
    * @return array
-   *   @todo
+   *   Allowed groups options using optgroup for the group types.
    */
   protected function getAllowedGroups($entity_plugin_id, array $existing_gcontent) {
+    $groups = $this->getPluginGroups($entity_plugin_id);
+    // If there are no groups with the plugin enabled, return early.
+    if (empty($groups)) {
+      return [];
+    }
+
+    $allowed_groups = [];
     $all_restricted = TRUE;
     /** @var \Drupal\Core\Session\AccountInterface $account */
     $account = $this->currentUser->getAccount();
-    $allowed_groups = [
-      'groups' => [],
-      'warnings' => [],
-    ];
-
-    $groups = $this->getPluginGroups($entity_plugin_id);
-    // If empty group it means there are not groups with the plugin enabled.
-    if (empty($groups)) {
-      $allowed_groups['warnings']['empty_groups'] = $this->t('There are no groups or group types with the needed plugin enabled.');
-      return $allowed_groups;
-    }
 
     // Checking cardinality.
     $groups_cardinality = $this->getGroupsCardinality($groups, $entity_plugin_id);
@@ -82,13 +78,12 @@ class EntityGroupFieldSelectWidget extends EntityGroupFieldWidgetBase {
     if ($existing_gcontent) {
       $groups_ammounts = [];
       foreach ($existing_gcontent as $gcontent) {
-        // Not count the content if was removed.
+        // Do not count the content if it was removed.
         if ($gcontent['mode'] == 'removed') {
           continue;
         }
-        $gcontent_entity = isset($gcontent['entity']) ? $gcontent['entity'] : FALSE;
-        if ($gcontent_entity) {
-          $gid = $gcontent_entity->gid->getString();
+        if (isset($gcontent['entity'])) {
+          $gid = $gcontent['entity']->gid->getString();
           $groups_ammounts[$gid] = isset($groups_ammounts[$gid]) ? $groups_ammounts[$gid] + 1 : 1;
           if ($groups_ammounts[$gid] >= $groups_cardinality[$gid]) {
             $excluded_groups[] = $gid;
@@ -114,14 +109,10 @@ class EntityGroupFieldSelectWidget extends EntityGroupFieldWidgetBase {
         $all_restricted = FALSE;
         $group_bundle = $group->bundle();
         $group_bundle_label = $group->getGroupType()->label();
-        $allowed_groups['groups'][$group_bundle_label][$group->id()] = $this->entityRepository->getTranslationFromContext($group)->label();
+        $allowed_groups[$group_bundle_label][$group->id()] = $this->entityRepository->getTranslationFromContext($group)->label();
       }
     }
 
-    // Add warning when all restricted.
-    if ($all_restricted && !$existing_gcontent && count($groups) != count($excluded_groups)) {
-      $allowed_groups['warnings']['restricted'] = $this->t("You don't have the needed permissions to edit this.");
-    }
     return $allowed_groups;
   }
 
