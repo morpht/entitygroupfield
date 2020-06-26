@@ -25,4 +25,7 @@
     "drupal/core": "^8.8 || ^9",
     "drupal/group": "~1.0"
   }
+  "require-dev": {
+    "drupal/variationcache": "~1.0"
+  }
 }

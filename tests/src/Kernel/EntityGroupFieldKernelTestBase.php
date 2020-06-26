@@ -21,6 +21,7 @@ abstract class EntityGroupFieldKernelTestBase extends KernelTestBase {
     'system',
     'user',
     'group',
+    'variationcache',
     'entity',
     'field',
     'options',
