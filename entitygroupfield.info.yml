@@ -4,4 +4,6 @@ package: 'Group'
 type: 'module'
 core_version_requirement: ^8.8 || ^9
 dependencies:
-  - 'group:group'
+  - group:group
+test_dependencies:
+  - variationcache:variationcache
