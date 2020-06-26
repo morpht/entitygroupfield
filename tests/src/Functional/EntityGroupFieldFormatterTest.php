@@ -2,8 +2,6 @@
 
 namespace Drupal\Tests\entitygroupfield\Functional;
 
-use Drupal\Core\Entity\Entity\EntityViewMode;
-use Drupal\Core\Entity\Entity\EntityViewDisplay;
 use Drupal\node\Entity\Node;
 use Drupal\Tests\BrowserTestBase;
 use Drupal\Tests\entitygroupfield\Traits\GroupCreationTrait;
