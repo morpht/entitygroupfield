@@ -3,7 +3,6 @@
 namespace Drupal\Tests\entitygroupfield\FunctionalJavascript;
 
 use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
-use Drupal\node\Entity\Node;
 use Drupal\Tests\entitygroupfield\Traits\GroupCreationTrait;
 use Drupal\Tests\entitygroupfield\Traits\TestGroupsTrait;
 
@@ -247,7 +246,7 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $this->assertNotEmpty($groups_select->find('named', ['option', 4]));
 
     // @todo: Anything else we should test with both A and B groups that we
-    //   didn't already cover with articles?
+    // didn't already cover with articles?
   }
 
   /**
