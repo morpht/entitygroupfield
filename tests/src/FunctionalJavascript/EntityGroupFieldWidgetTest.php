@@ -110,8 +110,6 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
    * Test the 'autocomplete' group field widget on article nodes.
    */
   protected function checkArticleAutocompleteWidget() {
-    $assert_session = $this->assertSession();
-
     // Configure articles to use the autocomplete widget.
     $this->configureFormDisplay('article', [
       'type' => 'entitygroupfield_autocomplete_widget',
@@ -129,7 +127,22 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $groups_autocomplete = $page->findField('group_content[add_more][add_relation]');
     $this->assertNotEmpty($groups_autocomplete);
 
-    // @todo Actually test the autocomplete.
+    // Actually test the autocomplete.
+    $groups_autocomplete->setValue('group');
+    $this->getSession()->getDriver()->keyDown($groups_autocomplete->getXpath(), ' ');
+    $this->assertSession()->waitOnAutocomplete();
+
+    // Check the autocomplete results.
+    $results = $page->findAll('css', '.ui-autocomplete li');
+    $this->assertCount(2, $results);
+    $this->assertEquals($this->groupA1->label(), $results[0]->getText());
+    $this->assertEquals($this->groupA2->label(), $results[1]->getText());
+
+    // Click on the first result and make sure it works.
+    $page->find('css', '.ui-autocomplete li:first-child a')->click();
+    $this->assertSession()->fieldValueEquals('group_content[add_more][add_relation]', $this->groupA1->label() . ' (' . $this->groupA1->id() . ')');
+
+    // @todo: Actually try to save the new article and make sure it worked.
   }
 
   /**
@@ -197,8 +210,6 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
    * Test the 'autocomplete' group field widget on page nodes.
    */
   protected function checkPageAutocompleteWidget() {
-    $assert_session = $this->assertSession();
-
     // Configure pages to use the autocomplete widget.
     $this->configureFormDisplay('page', [
       'type' => 'entitygroupfield_autocomplete_widget',
@@ -216,7 +227,22 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $groups_autocomplete = $page->findField('group_content[add_more][add_relation]');
     $this->assertNotEmpty($groups_autocomplete);
 
-    // @todo Actually test the autocomplete.
+    // Actually test the autocomplete.
+    $groups_autocomplete->setValue('group');
+    $this->getSession()->getDriver()->keyDown($groups_autocomplete->getXpath(), ' ');
+    $this->assertSession()->waitOnAutocomplete();
+
+    // Check the autocomplete results.
+    $results = $page->findAll('css', '.ui-autocomplete li');
+    $this->assertCount(4, $results);
+    $this->assertEquals($this->groupA1->label(), $results[0]->getText());
+    $this->assertEquals($this->groupA2->label(), $results[1]->getText());
+    $this->assertEquals($this->groupB1->label(), $results[2]->getText());
+    $this->assertEquals($this->groupB2->label(), $results[3]->getText());
+
+    // Click on the last result and make sure it works.
+    $page->find('css', '.ui-autocomplete li:last-child a')->click();
+    $this->assertSession()->fieldValueEquals('group_content[add_more][add_relation]', $this->groupB2->label() . ' (' . $this->groupB2->id() . ')');
   }
 
   /**
