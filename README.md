@@ -50,8 +50,9 @@ information.
 ## Initial group configuration
 
 In order for this module to do anything, you must first configure your site to
-have group types, create one or more groups, and to use a content enabler to
-associate various kinds of content with your groups. For example:
+have group types and create one or more groups. Users can automatically be
+associated with groups, but if you wish to associate other entity types with
+groups you must configure a content enabler manually. For example:
 
 * Enable the 'gnode' module from Group core.
 * Create a group type at `/admin/group/types` (e.g. 'Private group').
@@ -59,8 +60,6 @@ associate various kinds of content with your groups. For example:
   (`/admin/group/types/manage/private_group/content`).
 * Scroll down to a node type you care about (e.g. 'Article')
 * Click the 'Install' button and configure appropriately.
-
-By default, users can automatically be associated with groups.
 
 
 ## Viewing group associations
@@ -100,7 +99,6 @@ for any given entity:
    settings there's an option to pick what view mode to render the group with.
 3. 'Parent group ID' shows the numeric identifier for the group. Probably not
    what you want, but available if you need it.
-
 4. 'Rendered entity' will show the group content entity itself. This is the
    underlying relationship between any entity and a group (not to be confused
    with the group entity described above under 'Parent group rendered entity').
