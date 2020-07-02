@@ -110,7 +110,7 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     // Note: the rest of this function invokes protected helper methods, instead
     // of defining those as entirely new test* methods, to avoid the (intense)
     // startup costs of FunctionalJavascript tests.
-
+    //
     // Try the select widget on users.
     $this->checkUserSelectWidget();
 
