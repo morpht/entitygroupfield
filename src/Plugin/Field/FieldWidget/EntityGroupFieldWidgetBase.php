@@ -83,6 +83,8 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
    */
   public static function defaultSettings() {
     return [
+      'help_text' => '',
+      'label' => t('Group name'),
       'multiple' => TRUE,
       'required' => FALSE,
     ] + parent::defaultSettings();
@@ -93,7 +95,6 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $elements = [];
-
     $elements['multiple'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Multiple'),
@@ -104,7 +105,18 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
       '#title' => $this->t('Required'),
       '#default_value' => $this->getSetting('required'),
     ];
-
+    $elements['label'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Label'),
+      '#default_value' => $this->getSetting('label'),
+      '#description' => $this->t('The label of the form element for adding new groups.'),
+    ];
+    $elements['help_text'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Help text'),
+      '#default_value' => $this->getSetting('help_text'),
+      '#description' => $this->t('Instructions to present to the user below the form element for adding new groups.'),
+    ];
     return $elements;
   }
 
@@ -115,6 +127,14 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
     $summary = [];
     $summary[] = ($this->getSetting('multiple')) ? $this->t('Multiple: Yes') : $this->t('Multiple: No');
     $summary[] = ($this->getSetting('required')) ? $this->t('Required: Yes') : $this->t('Required: No');
+    $label = $this->getSetting('label');
+    if (!empty($label)) {
+      $summary[] = $this->t('Label: %label', ['%label' => $label]);
+    }
+    $help_text = $this->getSetting('help_text');
+    if (!empty($help_text)) {
+      $summary[] = $this->t('Help text: %text', ['%text' => $help_text]);
+    }
     return $summary;
   }
 

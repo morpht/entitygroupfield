@@ -30,8 +30,9 @@ class EntityGroupFieldAutocompleteWidget extends EntityGroupFieldWidgetBase {
       }
     }
     return [
-      '#title' => $this->t('Group name'),
       '#type' => 'group_autocomplete',
+      '#title' => $this->getSetting('label'),
+      '#description' => $this->getSetting('help_text'),
       '#selection_settings' => [
         'excluded_groups' => $excluded_groups,
         'target_bundles' => $this->getPluginGroupTypes($entity_plugin_id),

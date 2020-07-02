@@ -168,11 +168,15 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
    */
   protected function checkUserSelectWidget() {
     // Configure users to use the select widget.
+    $custom_label = $this->randomMachineName(10);
+    $custom_help_text = $this->randomMachineName(20);
     $this->configureFormDisplay('user', 'user', [
       'type' => 'entitygroupfield_select_widget',
       'settings' => [
         'multiple' => TRUE,
         'required' => FALSE,
+        'label' => $custom_label,
+        'help_text' => $custom_help_text,
       ],
     ]);
 
@@ -185,6 +189,13 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $groups_select_name = 'entitygroupfield[add_more][add_relation]';
     $groups_select = $page->findField($groups_select_name);
     $this->assertNotEmpty($groups_select);
+
+    // Ensure our custom label and help text are used.
+    $label = $this->xpath('//label[@for=:for and contains(text(), :value)]', [':for' => 'edit-entitygroupfield-add-more-add-relation', ':value' => $custom_label]);
+    $this->assertNotEmpty($label);
+    $help_text = $this->xpath('//div[@id=:id and contains(text(), :value)]', [':id' => 'edit-entitygroupfield-add-more-add-relation--description', ':value' => $custom_help_text]);
+    $this->assertNotEmpty($help_text);
+
     // Ensure the default option makes sense.
     $default_option = $this->assertSession()->optionExists($groups_select_name, '- Select a group -');
     $this->assertNotEmpty($default_option);

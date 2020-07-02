@@ -18,20 +18,32 @@ field.widget.settings.entitygroupfield_autocomplete_widget:
   type: mapping
   label: 'Group autocomplete widget settings'
   mapping:
-    required:
-      type: boolean
-      label: 'Required'
+    help_text:
+      type: text
+      label: 'Help text'
+    label:
+      type: label
+      label: 'Label'
     multiple:
       type: boolean
       label: 'Multiple'
+    required:
+      type: boolean
+      label: 'Required'
 
 field.widget.settings.entitygroupfield_select_widget:
   type: mapping
   label: 'Group select widget settings'
   mapping:
-    required:
-      type: boolean
-      label: 'Required'
+    help_text:
+      type: text
+      label: 'Help text'
+    label:
+      type: label
+      label: 'Label'
     multiple:
       type: boolean
       label: 'Multiple'
+    required:
+      type: boolean
+      label: 'Required'
