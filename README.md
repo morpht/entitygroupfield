@@ -109,7 +109,46 @@ for any given entity:
 
 ## Editing group associations
 
-@todo
+To be able to add and remove group associations when editing an entity, you must
+configure the appropriate form display mode(s) for the entity type (and bundle,
+if necessary), enable the "Groups" field (see note below about 'Field labels')
+and pick either the "Group select" or "Group autocomplete" widget.
+
+
+### Table of existing groups
+
+When creating a new entity, both widgets will start out with a message that
+there are no group associations. As you add the entity to groups, a table will
+appear showing all the groups the new entity would be added to if saved. There
+will be an operation to remove these associations in case you select the wrong
+group and need to change the associations.
+
+When editing an existing entity, both widgets will show a table of any existing
+groups an entity is associated with. If the current user has permission to
+update or remove these associations, they will see different operation links
+('Edit', 'Remove', etc) in a "drop button" interface in the row for each group.
+
+The only differences between the widgets are how to pick what group to add the
+entity to.
+
+
+### Group select widget
+
+Provides a drop-down select interface for picking which group to add the entity
+to. This select will include "optgroup" labels for each group type, and then
+individual options for all the groups that the current user has permission to
+add the content to. This depends on group memberships, permissions, and
+more. The widget will find every possible group the entity could be added to by
+the current user.
+
+
+### Group autocomplete widget
+
+If there are a large number of groups on the site and a potentially giant select
+list wouldn't make for a usable interface, you can use the autocomplete widget.
+This provides a text field that automatically tries to complete whatever you've
+started typing (again, based on the permissions and group memberships of the
+current user).
 
 
 ## Field labels
