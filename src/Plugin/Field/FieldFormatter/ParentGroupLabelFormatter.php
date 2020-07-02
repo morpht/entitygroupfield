@@ -12,7 +12,7 @@ use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceLabelFormatter;
  *   label = @Translation("Parent group label"),
  *   description = @Translation("Display the label of the parent groups."),
  *   field_types = {
- *     "group_content"
+ *     "entitygroupfield"
  *   }
  * )
  */

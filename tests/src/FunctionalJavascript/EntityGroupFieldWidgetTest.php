@@ -87,9 +87,9 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     // Verify users.
     $this->drupalGet('/admin/people/create');
     $page = $this->getSession()->getPage();
-    $groups_widget = $page->findAll('css', '#edit-group-content');
+    $groups_widget = $page->findAll('css', '#edit-entitygroupfield');
     $this->assertEmpty($groups_widget);
-    $groups_element = $page->findField('group_content[add_more][add_relation]');
+    $groups_element = $page->findField('entitygroupfield[add_more][add_relation]');
     $this->assertEmpty($groups_element);
     $add_group_button = $page->findButton('Add to Group');
     $this->assertEmpty($add_group_button);
@@ -101,18 +101,18 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     // Verify article nodes.
     $this->drupalGet('/node/add/article');
     $page = $this->getSession()->getPage();
-    $groups_widget = $page->findAll('css', '#edit-group-content');
+    $groups_widget = $page->findAll('css', '#edit-entitygroupfield');
     $this->assertEmpty($groups_widget);
-    $groups_element = $page->findField('group_content[add_more][add_relation]');
+    $groups_element = $page->findField('entitygroupfield[add_more][add_relation]');
     $this->assertEmpty($groups_element);
     $add_group_button = $page->findButton('Add to Group');
     $this->assertEmpty($add_group_button);
     // Verify page nodes.
     $this->drupalGet('/node/add/page');
     $page = $this->getSession()->getPage();
-    $groups_widget = $page->findAll('css', '#edit-group-content');
+    $groups_widget = $page->findAll('css', '#edit-entitygroupfield');
     $this->assertEmpty($groups_widget);
-    $groups_element = $page->findField('group_content[add_more][add_relation]');
+    $groups_element = $page->findField('entitygroupfield[add_more][add_relation]');
     $this->assertEmpty($groups_element);
     $add_group_button = $page->findButton('Add to Group');
     $this->assertEmpty($add_group_button);
@@ -153,11 +153,11 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     // Now we should see the widget.
     $this->drupalGet('/admin/people/create');
     $page = $this->getSession()->getPage();
-    $groups_widget = $page->findAll('css', '#edit-group-content');
+    $groups_widget = $page->findAll('css', '#edit-entitygroupfield');
     $this->assertNotEmpty($groups_widget);
     $this->assertSession()->pageTextContains('Group memberships');
     $this->assertSession()->pageTextContains('Not yet added to groups.');
-    $groups_select = $page->findField('group_content[add_more][add_relation]');
+    $groups_select = $page->findField('entitygroupfield[add_more][add_relation]');
     $this->assertEmpty($groups_select);
     $add_group_button = $page->findButton('Add to Group');
     $this->assertEmpty($add_group_button);
@@ -179,10 +179,10 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     // We should see the widget.
     $this->drupalGet('/admin/people/create');
     $page = $this->getSession()->getPage();
-    $groups_widget = $page->findAll('css', '#edit-group-content');
+    $groups_widget = $page->findAll('css', '#edit-entitygroupfield');
     $this->assertNotEmpty($groups_widget);
     $this->assertSession()->pageTextContains('Group memberships');
-    $groups_select_name = 'group_content[add_more][add_relation]';
+    $groups_select_name = 'entitygroupfield[add_more][add_relation]';
     $groups_select = $page->findField($groups_select_name);
     $this->assertNotEmpty($groups_select);
     // Ensure the default option makes sense.
@@ -203,7 +203,7 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $add_group_button = $page->findButton('Add to Group');
     $this->assertNotEmpty($add_group_button);
     $add_group_button->click();
-    $groups_table = $this->assertSession()->waitForElementVisible('css', '#edit-group-content-wrapper table');
+    $groups_table = $this->assertSession()->waitForElementVisible('css', '#edit-entitygroupfield-wrapper table');
     $this->assertNotEmpty($groups_table);
     // @todo Assert that the table looks right.
   }
@@ -224,9 +224,9 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     // Now we should see the widget.
     $this->drupalGet('/node/add/article');
     $page = $this->getSession()->getPage();
-    $groups_widget = $page->findAll('css', '#edit-group-content');
+    $groups_widget = $page->findAll('css', '#edit-entitygroupfield');
     $this->assertNotEmpty($groups_widget);
-    $groups_autocomplete = $page->findField('group_content[add_more][add_relation]');
+    $groups_autocomplete = $page->findField('entitygroupfield[add_more][add_relation]');
     $this->assertNotEmpty($groups_autocomplete);
 
     // Actually test the autocomplete.
@@ -242,7 +242,7 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
 
     // Click on the first result and make sure it works.
     $page->find('css', '.ui-autocomplete li:first-child a')->click();
-    $this->assertSession()->fieldValueEquals('group_content[add_more][add_relation]', $this->groupA1->label() . ' (' . $this->groupA1->id() . ')');
+    $this->assertSession()->fieldValueEquals('entitygroupfield[add_more][add_relation]', $this->groupA1->label() . ' (' . $this->groupA1->id() . ')');
 
     // @todo: Actually try to save the new article and make sure it worked.
   }
@@ -265,9 +265,9 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     // Now we should see the widget.
     $this->drupalGet('/node/add/article');
     $page = $this->getSession()->getPage();
-    $groups_widget = $page->findAll('css', '#edit-group-content');
+    $groups_widget = $page->findAll('css', '#edit-entitygroupfield');
     $this->assertNotEmpty($groups_widget);
-    $groups_select = $page->findField('group_content[add_more][add_relation]');
+    $groups_select = $page->findField('entitygroupfield[add_more][add_relation]');
     $this->assertNotEmpty($groups_select);
     // Since this is an article, only 'A' type groups should be options.
     $this->assertNotEmpty($groups_select->find('named', ['option', '- Select a group -']));
@@ -279,10 +279,10 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $add_group_button = $page->findButton('Add to Group');
     $this->assertNotEmpty($add_group_button);
     $add_group_button->click();
-    $groups_table = $assert_session->waitForElementVisible('css', '#edit-group-content-wrapper table');
+    $groups_table = $assert_session->waitForElementVisible('css', '#edit-entitygroupfield-wrapper table');
     $this->assertNotEmpty($groups_table);
     // @todo Assert that the table looks right.
-    $groups_select = $page->findField('group_content[add_more][add_relation]');
+    $groups_select = $page->findField('entitygroupfield[add_more][add_relation]');
     $this->assertNotEmpty($groups_select);
     // Make sure the group we added is no longer an option in the select list.
     // @todo We'll have to be more careful with this once we correctly handle
@@ -300,11 +300,11 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $this->assertNotEmpty($add_group_button);
     $add_group_button->click();
     // Wait for a row with 'group-A2' to appear in the 'Groups' table.
-    $group_a2_cell = $assert_session->waitForElementVisible('xpath', '//div[@id="edit-group-content-wrapper"]//table/tbody/tr/td//div[contains(text(), "group-A2")]');
+    $group_a2_cell = $assert_session->waitForElementVisible('xpath', '//div[@id="edit-entitygroupfield-wrapper"]//table/tbody/tr/td//div[contains(text(), "group-A2")]');
     $this->assertNotEmpty($group_a2_cell);
 
     // Now that we used both groups, there shouldn't be an add button anymore.
-    $groups_select = $page->findField('group_content[add_more][add_relation]');
+    $groups_select = $page->findField('entitygroupfield[add_more][add_relation]');
     $this->assertEmpty($groups_select);
 
     // @todo Test trying to remove a group from the table.
@@ -326,9 +326,9 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     // Now we should see the widget.
     $this->drupalGet('/node/add/page');
     $page = $this->getSession()->getPage();
-    $groups_widget = $page->findAll('css', '#edit-group-content');
+    $groups_widget = $page->findAll('css', '#edit-entitygroupfield');
     $this->assertNotEmpty($groups_widget);
-    $groups_autocomplete = $page->findField('group_content[add_more][add_relation]');
+    $groups_autocomplete = $page->findField('entitygroupfield[add_more][add_relation]');
     $this->assertNotEmpty($groups_autocomplete);
 
     // Actually test the autocomplete.
@@ -346,7 +346,7 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
 
     // Click on the last result and make sure it works.
     $page->find('css', '.ui-autocomplete li:last-child a')->click();
-    $this->assertSession()->fieldValueEquals('group_content[add_more][add_relation]', $this->groupB2->label() . ' (' . $this->groupB2->id() . ')');
+    $this->assertSession()->fieldValueEquals('entitygroupfield[add_more][add_relation]', $this->groupB2->label() . ' (' . $this->groupB2->id() . ')');
   }
 
   /**
@@ -365,9 +365,9 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     ]);
     $this->drupalGet('/node/add/page');
     $page = $this->getSession()->getPage();
-    $groups_widget = $page->findAll('css', '#edit-group-content');
+    $groups_widget = $page->findAll('css', '#edit-entitygroupfield');
     $this->assertNotEmpty($groups_widget);
-    $groups_select = $page->findField('group_content[add_more][add_relation]');
+    $groups_select = $page->findField('entitygroupfield[add_more][add_relation]');
     $this->assertNotEmpty($groups_select);
     // Since this is a page node, all 4 groups should be options.
     $this->assertNotEmpty($groups_select->find('named', ['option', '- Select a group -']));
@@ -384,19 +384,19 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
   }
 
   /**
-   * Configures the form display mode for the 'group_content' field.
+   * Configures the form display mode for the 'entitygroupfield' field.
    *
    * @param string $entity_type
    *   The entity type to configure.
    * @param string $bundle
    *   (Optional) The entity bundle to configure.
    * @param array $config
-   *   The configuration array to use for the 'group_content' field.
+   *   The configuration array to use for the 'entitygroupfield' field.
    */
   protected function configureFormDisplay($entity_type, $bundle, array $config) {
     \Drupal::service('entity_display.repository')
       ->getFormDisplay($entity_type, $bundle)
-      ->setComponent('group_content', $config)
+      ->setComponent('entitygroupfield', $config)
       ->save();
   }
 

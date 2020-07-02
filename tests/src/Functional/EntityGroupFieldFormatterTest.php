@@ -126,15 +126,15 @@ class EntityGroupFieldFormatterTest extends BrowserTestBase {
   }
 
   /**
-   * Configures the view display mode for the 'group_content' field on articles.
+   * Configures the view display mode for the 'entitygroupfield' field.
    *
    * @param array $config
-   *   The configuration array to use for the 'group_content' field.
+   *   The configuration array to use for the 'entitygroupfield' field.
    */
   protected function configureViewDisplay(array $config) {
     \Drupal::service('entity_display.repository')
       ->getViewDisplay('node', 'article')
-      ->setComponent('group_content', $config + [
+      ->setComponent('entitygroupfield', $config + [
         'label' => 'above',
       ])
       ->save();

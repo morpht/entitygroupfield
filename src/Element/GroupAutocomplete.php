@@ -14,7 +14,7 @@ use Drupal\Core\Entity\Element\EntityAutocomplete;
  * Properties:
  * - #default_value: Either an entity object or an array of entity objects.
  * - #selection_settings: Array of settings to pass to the entity reference
- *   selection handler ('group:group_content'), which supports this key:
+ *   selection handler ('group:entitygroupfield'), which supports this key:
  *   - excluded_groups: Array of group IDs to exclude (if any).
  *   Plus keys from EntityReferenceSelection\DefaultSelection, such as:
  *   - target_bundles: Array of group type IDs to require (if any).
@@ -52,7 +52,7 @@ class GroupAutocomplete extends EntityAutocomplete {
     $info = parent::getInfo();
     // Apply default form element properties.
     $info['#target_type'] = 'group';
-    $info['#selection_handler'] = 'group:group_content';
+    $info['#selection_handler'] = 'group:entitygroupfield';
     return $info;
   }
 

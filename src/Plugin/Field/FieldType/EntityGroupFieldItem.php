@@ -5,10 +5,10 @@ namespace Drupal\entitygroupfield\Plugin\Field\FieldType;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 
 /**
- * Plugin implementation of the 'group_content' field type.
+ * Plugin implementation of the 'entitygroupfield' field type.
  *
  * @FieldType(
- *   id = "group_content",
+ *   id = "entitygroupfield",
  *   label = @Translation("Groups"),
  *   description = @Translation("This is a computed field to relate content with groups"),
  *   no_ui = TRUE,
@@ -17,6 +17,6 @@ use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
  *   list_class = "\Drupal\entitygroupfield\Field\EntityGroupFieldItemList",
  * )
  */
-class GroupContentItem extends EntityReferenceItem {
+class EntityGroupFieldItem extends EntityReferenceItem {
 
 }

@@ -9,7 +9,7 @@
  * Implements hook_uninstall().
  */
 function entitygroupfield_uninstall() {
-  // Remove the group_content field from all view and form modes on all entities.
+  // Remove entitygroupfield from all view and form modes on all entities.
   $entity_display_repository = \Drupal::service('entity_display.repository');
   $entity_form_display = \Drupal::entityTypeManager()->getStorage('entity_form_display');
   $entity_view_display = \Drupal::entityTypeManager()->getStorage('entity_view_display');
@@ -26,9 +26,9 @@ function entitygroupfield_uninstall() {
         foreach ($form_modes as $form_mode => $form_mode_info) {
           $form_display = $entity_form_display->load("$entity_type_id.$bundle.$form_mode");
           if ($form_display) {
-            if ($form_display->getComponent('group_content')) {
+            if ($form_display->getComponent('entitygroupfield')) {
               $content = $form_display->get('content');
-              unset($content['group_content']);
+              unset($content['entitygroupfield']);
               $form_display->set('content', $content);
               $form_display->save();
             }
@@ -38,9 +38,9 @@ function entitygroupfield_uninstall() {
         foreach ($view_modes as $view_mode => $view_mode_info) {
           $view_display = $entity_view_display->load("$entity_type_id.$bundle.$view_mode");
           if ($view_display) {
-            if ($view_display->getComponent('group_content')) {
+            if ($view_display->getComponent('entitygroupfield')) {
               $content = $view_display->get('content');
-              unset($content['group_content']);
+              unset($content['entitygroupfield']);
               $view_display->set('content', $content);
               $view_display->save();
             }

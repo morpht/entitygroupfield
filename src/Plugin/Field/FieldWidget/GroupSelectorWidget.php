@@ -13,7 +13,7 @@ namespace Drupal\entitygroupfield\Plugin\Field\FieldWidget;
  *   id = "group_selector_widget",
  *   label = @Translation("(Deprecated) Group selector"),
  *   field_types = {
- *     "group_content"
+ *     "entitygroupfield"
  *   }
  * )
  */

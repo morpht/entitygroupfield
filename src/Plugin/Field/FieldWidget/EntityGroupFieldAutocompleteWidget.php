@@ -9,7 +9,7 @@ namespace Drupal\entitygroupfield\Plugin\Field\FieldWidget;
  *   id = "entitygroupfield_autocomplete_widget",
  *   label = @Translation("Group autocomplete"),
  *   field_types = {
- *     "group_content"
+ *     "entitygroupfield"
  *   }
  * )
  */

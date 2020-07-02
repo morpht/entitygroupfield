@@ -30,8 +30,8 @@ function entitygroupfield_entity_base_field_info(EntityTypeInterface $entity_typ
     // Adding field to entity types.
     if (array_key_exists($entity_type->id(), $entity_types)) {
       $field_label = $entity_type->id() === 'user' ? t('Group memberships') : t('Groups');
-      $fields['group_content'] = BaseFieldDefinition::create('group_content')
-        ->setName('group_content')
+      $fields['entitygroupfield'] = BaseFieldDefinition::create('entitygroupfield')
+        ->setName('entitygroupfield')
         ->setTargetEntityTypeId($entity_type->id())
         ->setSetting('target_type', 'group_content')
         ->setLabel($field_label)
@@ -60,7 +60,7 @@ function entitygroupfield_entity_base_field_info(EntityTypeInterface $entity_typ
  * Implements hook_field_formatter_info_alter().
  */
 function entitygroupfield_field_formatter_info_alter(array &$info) {
-  $info['entity_reference_entity_view']['field_types'][] = 'group_content';
+  $info['entity_reference_entity_view']['field_types'][] = 'entitygroupfield';
 }
 
 /**

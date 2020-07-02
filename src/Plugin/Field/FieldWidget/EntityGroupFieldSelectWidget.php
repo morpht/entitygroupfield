@@ -9,7 +9,7 @@ namespace Drupal\entitygroupfield\Plugin\Field\FieldWidget;
  *   id = "entitygroupfield_select_widget",
  *   label = @Translation("Group select"),
  *   field_types = {
- *     "group_content"
+ *     "entitygroupfield"
  *   }
  * )
  */

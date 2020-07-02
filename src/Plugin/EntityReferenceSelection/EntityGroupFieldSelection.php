@@ -5,17 +5,17 @@ namespace Drupal\entitygroupfield\Plugin\EntityReferenceSelection;
 use Drupal\Core\Entity\Plugin\EntityReferenceSelection\DefaultSelection;
 
 /**
- * Provides specific access control for the comment entity type.
+ * Provides specific access control for group entities.
  *
  * @EntityReferenceSelection(
- *   id = "group:group_content",
- *   label = @Translation("Groups to add content"),
+ *   id = "group:entitygroupfield",
+ *   label = @Translation("Groups"),
  *   entity_types = {"group"},
  *   group = "group",
  *   weight = 1
  * )
  */
-class GroupContentSelection extends DefaultSelection {
+class EntityGroupFieldSelection extends DefaultSelection {
 
   /**
    * {@inheritdoc}
