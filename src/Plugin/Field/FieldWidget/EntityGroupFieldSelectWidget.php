@@ -30,8 +30,9 @@ class EntityGroupFieldSelectWidget extends EntityGroupFieldWidgetBase {
     return [
       '#title' => $this->t('Group'),
       '#type' => 'select',
-      '#description' => $this->t('Select a group'),
       '#options' => $allowed_groups,
+      '#empty_option' => $this->t('- Select a group -'),
+      '#empty_value' => '',
     ];
   }
 

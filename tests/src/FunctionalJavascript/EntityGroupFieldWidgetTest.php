@@ -182,8 +182,13 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $groups_widget = $page->findAll('css', '#edit-group-content');
     $this->assertNotEmpty($groups_widget);
     $this->assertSession()->pageTextContains('Group memberships');
-    $groups_select = $page->findField('group_content[add_more][add_relation]');
+    $groups_select_name = 'group_content[add_more][add_relation]';
+    $groups_select = $page->findField($groups_select_name);
     $this->assertNotEmpty($groups_select);
+    // Ensure the default option makes sense.
+    $default_option = $this->assertSession()->optionExists($groups_select_name, '- Select a group -');
+    $this->assertNotEmpty($default_option);
+    $this->assertTrue($default_option->hasAttribute('selected'));
     // Since this is a user, all 4 groups should be options.
     $this->assertNotEmpty($groups_select->find('named', ['option', 1]));
     $this->assertNotEmpty($groups_select->find('named', ['option', 2]));
@@ -265,6 +270,7 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $groups_select = $page->findField('group_content[add_more][add_relation]');
     $this->assertNotEmpty($groups_select);
     // Since this is an article, only 'A' type groups should be options.
+    $this->assertNotEmpty($groups_select->find('named', ['option', '- Select a group -']));
     $this->assertNotEmpty($groups_select->find('named', ['option', 1]));
     $this->assertNotEmpty($groups_select->find('named', ['option', 2]));
     $this->assertEmpty($groups_select->find('named', ['option', 3]));
@@ -282,6 +288,7 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     // @todo We'll have to be more careful with this once we correctly handle
     //   group cardinality settings.
     // @see https://www.drupal.org/project/entitygroupfield/issues/3152719
+    $this->assertNotEmpty($groups_select->find('named', ['option', '- Select a group -']));
     $this->assertEmpty($groups_select->find('named', ['option', 1]));
     $this->assertNotEmpty($groups_select->find('named', ['option', 2]));
     $this->assertEmpty($groups_select->find('named', ['option', 3]));
@@ -363,6 +370,7 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $groups_select = $page->findField('group_content[add_more][add_relation]');
     $this->assertNotEmpty($groups_select);
     // Since this is a page node, all 4 groups should be options.
+    $this->assertNotEmpty($groups_select->find('named', ['option', '- Select a group -']));
     $this->assertNotEmpty($groups_select->find('named', ['option', 1]));
     $this->assertNotEmpty($groups_select->find('named', ['option', 2]));
     $this->assertNotEmpty($groups_select->find('named', ['option', 3]));
