@@ -47,9 +47,11 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
   protected function setUp() {
     parent::setUp();
     $this->drupalLogin($this->drupalCreateUser([
+      'administer account settings',
       'administer content types',
       'administer node fields',
       'administer node display',
+      'administer users',
       'bypass node access',
       // @todo Don't use this perm, be more careful with Group memberships.
       'bypass group access',
@@ -76,8 +78,16 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
    * Test group field widgets.
    */
   public function testFieldWidgets() {
-
-    // Before we configure anything make sure we don't see our widgets.
+    // Before we configure anything, make sure we don't see our widgets.
+    // Verify users.
+    $this->drupalGet('/admin/people/create');
+    $page = $this->getSession()->getPage();
+    $groups_widget = $page->findAll('css', '#edit-group-content');
+    $this->assertEmpty($groups_widget);
+    $groups_element = $page->findField('group_content[add_more][add_relation]');
+    $this->assertEmpty($groups_element);
+    $add_group_button = $page->findButton('Add to Group');
+    $this->assertEmpty($add_group_button);
     // Verify article nodes.
     $this->drupalGet('/node/add/article');
     $page = $this->getSession()->getPage();
@@ -97,9 +107,14 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $add_group_button = $page->findButton('Add to Group');
     $this->assertEmpty($add_group_button);
 
-    // Now, try both of the widgets on each of the node types. We use protected
-    // helper methods, not entirely new test* methods, to avoid the (intense)
+    // Note: the rest of this function invokes protected helper methods, instead
+    // of defining those as entirely new test* methods, to avoid the (intense)
     // startup costs of FunctionalJavascript tests.
+
+    // Try the select widget on users.
+    $this->checkUserSelectWidget();
+
+    // Try both of the widgets on each of the node types.
     $this->checkArticleAutocompleteWidget();
     $this->checkArticleSelectWidget();
     $this->checkPageAutocompleteWidget();
@@ -107,11 +122,50 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
   }
 
   /**
+   * Test the 'select' group field widget on users.
+   */
+  protected function checkUserSelectWidget() {
+    // Configure users to use the select widget.
+    $this->configureFormDisplay('user', 'user', [
+      'type' => 'entitygroupfield_select_widget',
+      'settings' => [
+        'multiple' => TRUE,
+        'required' => FALSE,
+      ],
+    ]);
+
+    // We should see the widget.
+    $this->drupalGet('/admin/people/create');
+    $page = $this->getSession()->getPage();
+    $groups_widget = $page->findAll('css', '#edit-group-content');
+    $this->assertNotEmpty($groups_widget);
+    $groups_select = $page->findField('group_content[add_more][add_relation]');
+    $this->assertNotEmpty($groups_select);
+    // Since this is a user, all 4 groups should be options.
+    $this->assertNotEmpty($groups_select->find('named', ['option', 1]));
+    $this->assertNotEmpty($groups_select->find('named', ['option', 2]));
+    $this->assertNotEmpty($groups_select->find('named', ['option', 3]));
+    $this->assertNotEmpty($groups_select->find('named', ['option', 4]));
+    // And both opt groups.
+    $this->assertNotEmpty($groups_select->find('named', ['optgroup', $this->groupTypeA->label()]));
+    $this->assertNotEmpty($groups_select->find('named', ['optgroup', $this->groupTypeB->label()]));
+
+    // Try to add to groupA1.
+    $groups_select->setValue($this->groupA1->id());
+    $add_group_button = $page->findButton('Add to Group');
+    $this->assertNotEmpty($add_group_button);
+    $add_group_button->click();
+    $groups_table = $this->assertSession()->waitForElementVisible('css', '#edit-group-content-wrapper table');
+    $this->assertNotEmpty($groups_table);
+    // @todo Assert that the table looks right.
+  }
+
+  /**
    * Test the 'autocomplete' group field widget on article nodes.
    */
   protected function checkArticleAutocompleteWidget() {
     // Configure articles to use the autocomplete widget.
-    $this->configureFormDisplay('article', [
+    $this->configureFormDisplay('node', 'article', [
       'type' => 'entitygroupfield_autocomplete_widget',
       'settings' => [
         'multiple' => TRUE,
@@ -152,7 +206,7 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $assert_session = $this->assertSession();
 
     // Configure articles to use the select widget.
-    $this->configureFormDisplay('article', [
+    $this->configureFormDisplay('node', 'article', [
       'type' => 'entitygroupfield_select_widget',
       'settings' => [
         'multiple' => TRUE,
@@ -211,7 +265,7 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
    */
   protected function checkPageAutocompleteWidget() {
     // Configure pages to use the autocomplete widget.
-    $this->configureFormDisplay('page', [
+    $this->configureFormDisplay('node', 'page', [
       'type' => 'entitygroupfield_autocomplete_widget',
       'settings' => [
         'multiple' => TRUE,
@@ -252,7 +306,7 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $assert_session = $this->assertSession();
 
     // Configure pages to use the select widget.
-    $this->configureFormDisplay('page', [
+    $this->configureFormDisplay('node', 'page', [
       'type' => 'entitygroupfield_select_widget',
       'settings' => [
         'multiple' => TRUE,
@@ -278,14 +332,16 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
   /**
    * Configures the form display mode for the 'group_content' field.
    *
+   * @param string $entity_type
+   *   The entity type to configure.
    * @param string $bundle
-   *   The node type to configure.
+   *   (Optional) The entity bundle to configure.
    * @param array $config
    *   The configuration array to use for the 'group_content' field.
    */
-  protected function configureFormDisplay($bundle, array $config) {
+  protected function configureFormDisplay($entity_type, $bundle, array $config) {
     \Drupal::service('entity_display.repository')
-      ->getFormDisplay('node', $bundle)
+      ->getFormDisplay($entity_type, $bundle)
       ->setComponent('group_content', $config)
       ->save();
   }
