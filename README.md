@@ -151,6 +151,37 @@ started typing (again, based on the permissions and group memberships of the
 current user).
 
 
+### Example: Article nodes
+
+For example, if you have a node type called 'Article' that can belong to groups
+(see above), you could do something like this:
+
+* Visit Admin > Structure > Content types (`/admin/structure/types`)
+* Click on the 'Manage form display' operation next to the 'Article' node type
+  (`/admin/structure/types/manage/article/form-display`)
+* The 'Groups' computed field provided by this module is disabled by default.
+* Drag it up into the enabled fields you wish to see on your Article nodes.
+* Select the appropriate widget in the select list.
+* Optionally click the gear icon to further configure the widget.
+* Click 'Save' at the bottom of the form.
+
+
+### Example: Users
+
+For example, to be able to subscribe users to groups as an admin
+creates users, you could do something like this:
+
+* Visit Admin > Configuration > Account settings (`/admin/config/people/accounts`)
+* Click on the 'Manage form display' tab at the top of the page
+  (`/admin/config/people/accounts/form-display`).
+* The 'Group membershipss' computed field provided by this module is
+  disabled by default.
+* Drag it up into the enabled fields on the user profile.
+* Select the appropriate widget (`Group select` or `Group autocomplete`).
+* Optionally click the gear icon to further configure the widget.
+* Click 'Save' at the bottom of the form.
+
+
 ## Field labels
 
 By default, the computed field uses the label 'Group memberships' for User
