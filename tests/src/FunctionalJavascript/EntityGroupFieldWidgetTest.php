@@ -367,6 +367,9 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $this->assertNotEmpty($groups_select->find('named', ['option', 2]));
     $this->assertNotEmpty($groups_select->find('named', ['option', 3]));
     $this->assertNotEmpty($groups_select->find('named', ['option', 4]));
+    // And both opt groups.
+    $this->assertNotEmpty($groups_select->find('named', ['optgroup', $this->groupTypeA->label()]));
+    $this->assertNotEmpty($groups_select->find('named', ['optgroup', $this->groupTypeB->label()]));
 
     // @todo: Anything else we should test with both A and B groups that we
     // didn't already cover with articles?
