@@ -57,12 +57,17 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
       'bypass group access',
     ]));
 
+  }
+
+  /**
+   * Initialize the test.
+   *
+   * These are things that would otherwise be in self::setUp(), but that we want
+   * to do after some initial assertions.
+   */
+  protected function initializeTest() {
     // Setup the group types and test groups from the TestGroupsTrait.
     $this->initializeTestGroups();
-
-    // Create node types.
-    $this->drupalCreateContentType(['type' => 'article', 'name' => t('Article')]);
-    $this->drupalCreateContentType(['type' => 'page', 'name' => t('Basic page')]);
 
     // Enable article nodes to be assigned to only 'A' group type.
     $this->entityTypeManager->getStorage('group_content_type')
@@ -88,6 +93,11 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $this->assertEmpty($groups_element);
     $add_group_button = $page->findButton('Add to Group');
     $this->assertEmpty($add_group_button);
+
+    // Create node types.
+    $this->drupalCreateContentType(['type' => 'article', 'name' => t('Article')]);
+    $this->drupalCreateContentType(['type' => 'page', 'name' => t('Basic page')]);
+
     // Verify article nodes.
     $this->drupalGet('/node/add/article');
     $page = $this->getSession()->getPage();
@@ -111,7 +121,13 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     // of defining those as entirely new test* methods, to avoid the (intense)
     // startup costs of FunctionalJavascript tests.
     //
-    // Try the select widget on users.
+    // Before we create any groups or types, try the select widget on a user.
+    $this->checkUserSelectWidgetBeforeGroups();
+
+    // Initialize our test group types and groups.
+    $this->initializeTest();
+
+    // Try the select widget on users now that group types and groups exist.
     $this->checkUserSelectWidget();
 
     // Try both of the widgets on each of the node types.
@@ -122,7 +138,33 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
   }
 
   /**
-   * Test the 'select' group field widget on users.
+   * Test the 'select' group field widget on users before any groups exist.
+   */
+  protected function checkUserSelectWidgetBeforeGroups() {
+    // Configure users to use the select widget.
+    $this->configureFormDisplay('user', 'user', [
+      'type' => 'entitygroupfield_select_widget',
+      'settings' => [
+        'multiple' => TRUE,
+        'required' => FALSE,
+      ],
+    ]);
+
+    // Now we should see the widget.
+    $this->drupalGet('/admin/people/create');
+    $page = $this->getSession()->getPage();
+    $groups_widget = $page->findAll('css', '#edit-group-content');
+    $this->assertNotEmpty($groups_widget);
+    $this->assertSession()->pageTextContains('Group memberships');
+    $this->assertSession()->pageTextContains('Not yet added to groups.');
+    $groups_select = $page->findField('group_content[add_more][add_relation]');
+    $this->assertEmpty($groups_select);
+    $add_group_button = $page->findButton('Add to Group');
+    $this->assertEmpty($add_group_button);
+  }
+
+  /**
+   * Test the 'select' group field widget on users with groups and types.
    */
   protected function checkUserSelectWidget() {
     // Configure users to use the select widget.
@@ -139,6 +181,7 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $page = $this->getSession()->getPage();
     $groups_widget = $page->findAll('css', '#edit-group-content');
     $this->assertNotEmpty($groups_widget);
+    $this->assertSession()->pageTextContains('Group memberships');
     $groups_select = $page->findField('group_content[add_more][add_relation]');
     $this->assertNotEmpty($groups_select);
     // Since this is a user, all 4 groups should be options.

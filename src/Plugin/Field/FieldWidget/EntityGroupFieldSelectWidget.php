@@ -45,8 +45,9 @@ class EntityGroupFieldSelectWidget extends EntityGroupFieldWidgetBase {
    *   The list of group entities.
    */
   protected function getPluginGroups($plugin_id) {
-    return $this->entityTypeManager->getStorage('group')
-      ->loadByProperties(['type' => $this->getPluginGroupTypes($plugin_id)]);
+    $group_types = $this->getPluginGroupTypes($plugin_id);
+    return empty($group_types) ? [] : $this->entityTypeManager
+      ->getStorage('group')->loadByProperties(['type' => $group_types]);
   }
 
   /**
