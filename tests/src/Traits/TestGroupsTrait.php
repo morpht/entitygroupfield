@@ -40,6 +40,13 @@ trait TestGroupsTrait {
   protected $groupA2;
 
   /**
+   * Test group A3, of type 'a'.
+   *
+   * @var \Drupal\group\Entity\GroupInterface
+   */
+  protected $groupA3;
+
+  /**
    * Test group B1, of type 'b'.
    *
    * @var \Drupal\group\Entity\GroupInterface
@@ -52,6 +59,13 @@ trait TestGroupsTrait {
    * @var \Drupal\group\Entity\GroupInterface
    */
   protected $groupB2;
+
+  /**
+   * Test group B3, of type 'b'.
+   *
+   * @var \Drupal\group\Entity\GroupInterface
+   */
+  protected $groupB3;
 
   /**
    * Initializes all the test group types and groups.
@@ -70,8 +84,10 @@ trait TestGroupsTrait {
     // Create the groups.
     $this->groupA1 = $this->createGroup(['label' => 'group-A1', 'type' => 'a']);
     $this->groupA2 = $this->createGroup(['label' => 'group-A2', 'type' => 'a']);
+    $this->groupA3 = $this->createGroup(['label' => 'group-A3', 'type' => 'a']);
     $this->groupB1 = $this->createGroup(['label' => 'group-B1', 'type' => 'b']);
     $this->groupB2 = $this->createGroup(['label' => 'group-B2', 'type' => 'b']);
+    $this->groupB3 = $this->createGroup(['label' => 'group-B3', 'type' => 'b']);
   }
 
 }

@@ -39,6 +39,13 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
    *
    * @var \Drupal\user\UserInterface
    */
+  protected $adminUser;
+
+  /**
+   * Regular authenticated User for tests.
+   *
+   * @var \Drupal\user\UserInterface
+   */
   protected $testUser;
 
   /**
@@ -46,17 +53,29 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
    */
   protected function setUp() {
     parent::setUp();
-    $this->drupalLogin($this->drupalCreateUser([
+
+    // Create node types.
+    $this->drupalCreateContentType(['type' => 'article', 'name' => t('Article')]);
+    $this->drupalCreateContentType(['type' => 'page', 'name' => t('Basic page')]);
+
+    $this->adminUser = $this->drupalCreateUser([
+      'access group overview',
       'administer account settings',
       'administer content types',
+      'administer group',
       'administer node fields',
       'administer node display',
       'administer users',
       'bypass node access',
-      // @todo Don't use this perm, be more careful with Group memberships.
       'bypass group access',
-    ]));
-
+    ]);
+    $this->testUser = $this->drupalCreateUser([
+      'access content',
+      'create article content',
+      'create page content',
+      'edit own article content',
+      'edit own page content',
+    ]);
   }
 
   /**
@@ -77,6 +96,45 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
       ->createFromPlugin($this->groupTypeA, 'group_node:page')->save();
     $this->entityTypeManager->getStorage('group_content_type')
       ->createFromPlugin($this->groupTypeB, 'group_node:page')->save();
+
+    // Let regular group members view and add content to the groups.
+    $this->groupTypeA->getMemberRole()->grantPermissions([
+      'view group',
+      'create group_node:article content',
+      'create group_node:article entity',
+      'create group_node:page content',
+      'create group_node:page entity',
+      'delete own group_node:article content',
+      'delete own group_node:article entity',
+      'delete own group_node:page content',
+      'delete own group_node:page entity',
+      'update own group_node:article content',
+      'update own group_node:article entity',
+      'update own group_node:page content',
+      'update own group_node:page entity',
+      'view group_node:article content',
+      'view group_node:article entity',
+      'view group_node:page content',
+      'view group_node:page entity',
+    ])->save();
+
+    $this->groupTypeB->getMemberRole()->grantPermissions([
+      'view group',
+      'create group_node:page content',
+      'create group_node:page entity',
+      'delete own group_node:page content',
+      'delete own group_node:page entity',
+      'update own group_node:page content',
+      'update own group_node:page entity',
+      'view group_node:page content',
+      'view group_node:page entity',
+    ])->save();
+
+    // Subscribe the testUser to groups 1 + 2 (but not 3) in both types (A/B).
+    $this->groupA1->addMember($this->testUser);
+    $this->groupA2->addMember($this->testUser);
+    $this->groupB1->addMember($this->testUser);
+    $this->groupB2->addMember($this->testUser);
   }
 
   /**
@@ -85,6 +143,7 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
   public function testFieldWidgets() {
     // Before we configure anything, make sure we don't see our widgets.
     // Verify users.
+    $this->drupalLogin($this->adminUser);
     $this->drupalGet('/admin/people/create');
     $page = $this->getSession()->getPage();
     $groups_widget = $page->findAll('css', '#edit-entitygroupfield');
@@ -93,10 +152,6 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $this->assertEmpty($groups_element);
     $add_group_button = $page->findButton('Add to Group');
     $this->assertEmpty($add_group_button);
-
-    // Create node types.
-    $this->drupalCreateContentType(['type' => 'article', 'name' => t('Article')]);
-    $this->drupalCreateContentType(['type' => 'page', 'name' => t('Basic page')]);
 
     // Verify article nodes.
     $this->drupalGet('/node/add/article');
@@ -129,6 +184,9 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
 
     // Try the select widget on users now that group types and groups exist.
     $this->checkUserSelectWidget();
+
+    // Switch to a non-admin to make sure access control works as expected.
+    $this->drupalLogin($this->testUser);
 
     // Try both of the widgets on each of the node types.
     $this->checkArticleAutocompleteWidget();
@@ -200,11 +258,13 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $default_option = $this->assertSession()->optionExists($groups_select_name, '- Select a group -');
     $this->assertNotEmpty($default_option);
     $this->assertTrue($default_option->hasAttribute('selected'));
-    // Since this is a user, all 4 groups should be options.
+    // Since this is a user, all 6 groups should be options.
     $this->assertNotEmpty($groups_select->find('named', ['option', 1]));
     $this->assertNotEmpty($groups_select->find('named', ['option', 2]));
     $this->assertNotEmpty($groups_select->find('named', ['option', 3]));
     $this->assertNotEmpty($groups_select->find('named', ['option', 4]));
+    $this->assertNotEmpty($groups_select->find('named', ['option', 5]));
+    $this->assertNotEmpty($groups_select->find('named', ['option', 6]));
     // And both opt groups.
     $this->assertNotEmpty($groups_select->find('named', ['optgroup', $this->groupTypeA->label()]));
     $this->assertNotEmpty($groups_select->find('named', ['optgroup', $this->groupTypeB->label()]));
@@ -347,7 +407,8 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $this->getSession()->getDriver()->keyDown($groups_autocomplete->getXpath(), ' ');
     $this->assertSession()->waitOnAutocomplete();
 
-    // Check the autocomplete results.
+    // Check the autocomplete results. Should see the 4 groups the testUer is a
+    // member of.
     $results = $page->findAll('css', '.ui-autocomplete li');
     $this->assertCount(4, $results);
     $this->assertEquals($this->groupA1->label(), $results[0]->getText());
@@ -380,12 +441,13 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $this->assertNotEmpty($groups_widget);
     $groups_select = $page->findField('entitygroupfield[add_more][add_relation]');
     $this->assertNotEmpty($groups_select);
-    // Since this is a page node, all 4 groups should be options.
+    // As a page node, all 4 groups the user is in should be options.
     $this->assertNotEmpty($groups_select->find('named', ['option', '- Select a group -']));
     $this->assertNotEmpty($groups_select->find('named', ['option', 1]));
     $this->assertNotEmpty($groups_select->find('named', ['option', 2]));
-    $this->assertNotEmpty($groups_select->find('named', ['option', 3]));
+    // User not a member of group-A3
     $this->assertNotEmpty($groups_select->find('named', ['option', 4]));
+    $this->assertNotEmpty($groups_select->find('named', ['option', 5]));
     // And both opt groups.
     $this->assertNotEmpty($groups_select->find('named', ['optgroup', $this->groupTypeA->label()]));
     $this->assertNotEmpty($groups_select->find('named', ['optgroup', $this->groupTypeB->label()]));
