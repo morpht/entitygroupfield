@@ -58,7 +58,22 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $this->drupalCreateContentType(['type' => 'article', 'name' => t('Article')]);
     $this->drupalCreateContentType(['type' => 'page', 'name' => t('Basic page')]);
 
+    // Configure our field formatter to show group labels (as links).
+    foreach (['article', 'page'] as $node_type) {
+      \Drupal::service('entity_display.repository')
+        ->getViewDisplay('node', $node_type)
+        ->setComponent('entitygroupfield', [
+          'type' => 'parent_group_label_formatter',
+          'settings' => [
+            'link' => TRUE,
+          ],
+          'label' => 'above',
+        ])
+        ->save();
+    }
+
     $this->adminUser = $this->drupalCreateUser([
+      'access administration pages',
       'access group overview',
       'administer account settings',
       'administer content types',
@@ -276,7 +291,6 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $add_group_button->click();
     $groups_table = $this->assertSession()->waitForElementVisible('css', '#edit-entitygroupfield-wrapper table');
     $this->assertNotEmpty($groups_table);
-    // @todo Assert that the table looks right.
   }
 
   /**
@@ -314,8 +328,24 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     // Click on the first result and make sure it works.
     $page->find('css', '.ui-autocomplete li:first-child a')->click();
     $this->assertSession()->fieldValueEquals('entitygroupfield[add_more][add_relation]', $this->groupA1->label() . ' (' . $this->groupA1->id() . ')');
+    // Press the button to actually add this article to the selected group.
+    $page->findButton('Add to Group')->click();
+    // Make sure the table loads so we know AJAX worked before we continue.
+    $this->assertSession()->waitForElementVisible('css', '.field--name-entitygroupfield table');
 
-    // @todo: Actually try to save the new article and make sure it worked.
+    // Fill in the required title field.
+    $new_title = $this->randomString();
+    $title = $page->findField('title[0][value]');
+    $title->setValue($new_title);
+    // Save the article.
+    $page->findButton('Save')->click();
+    // Confirm that saving created the new article.
+    $this->assertSession()->pageTextContains("Article $new_title has been created.");
+
+    // Should see this is in group-A1 now (from our label field formatter).
+    $this->assertTrue($page->hasLink($this->groupA1->label()));
+    // But not in group-A2.
+    $this->assertFalse($page->hasLink($this->groupA2->label()));
   }
 
   /**
@@ -352,7 +382,10 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $add_group_button->click();
     $groups_table = $assert_session->waitForElementVisible('css', '#edit-entitygroupfield-wrapper table');
     $this->assertNotEmpty($groups_table);
-    // @todo Assert that the table looks right.
+    $group_name = $groups_table->find('css', 'tbody tr td .gcontent-type-title');
+    $this->assertNotEmpty($group_name);
+    $this->assertSame($this->groupA1->label(), $group_name->getText());
+
     $groups_select = $page->findField('entitygroupfield[add_more][add_relation]');
     $this->assertNotEmpty($groups_select);
     // Make sure the group we added is no longer an option in the select list.
@@ -378,7 +411,29 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $groups_select = $page->findField('entitygroupfield[add_more][add_relation]');
     $this->assertEmpty($groups_select);
 
-    // @todo Test trying to remove a group from the table.
+    // Test the remove buttons.
+    // Remove the first row (group-A1).
+    $remove_button = $page->findButton('entitygroupfield_0_remove');
+    $this->assertNotEmpty($remove_button);
+    $remove_button->press();
+    $confirm_button = $assert_session->waitForButton('Confirm removal');
+    $this->assertNotEmpty($confirm_button);
+    $confirm_button->press();
+    $groups_table = $assert_session->waitForElementVisible('css', '#edit-entitygroupfield-wrapper table');
+    $this->assertNotEmpty($groups_table);
+
+    // Make sure the row for group-A1 is gone.
+    $group_a1_cell = $page->find('xpath', '//div[@id="edit-entitygroupfield-wrapper"]//table/tbody/tr/td//div[contains(text(), "group-A1")]');
+    $this->assertEmpty($group_a1_cell);
+
+    // The groups select should be back.
+    $groups_select = $assert_session->waitForField('entitygroupfield[add_more][add_relation]');
+    $this->assertNotEmpty($groups_select);
+    // It should have group-A1 in it.
+    $this->assertNotEmpty($groups_select->find('named', ['option', 1]));
+    $this->assertEmpty($groups_select->find('named', ['option', 2]));
+    $this->assertEmpty($groups_select->find('named', ['option', 3]));
+    $this->assertEmpty($groups_select->find('named', ['option', 4]));
   }
 
   /**
