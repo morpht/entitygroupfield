@@ -3,8 +3,8 @@
 namespace Drupal\Tests\entitygroupfield\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;
-use Drupal\Tests\user\Traits\UserCreationTrait;
 use Drupal\Tests\entitygroupfield\Traits\GroupCreationTrait;
+use Drupal\Tests\user\Traits\UserCreationTrait;
 
 /**
  * Defines an abstract test base for entitygroupfield kernel tests.

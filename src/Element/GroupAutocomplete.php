@@ -2,9 +2,9 @@
 
 namespace Drupal\entitygroupfield\Element;
 
+use Drupal\Core\Entity\Element\EntityAutocomplete;
 use Drupal\Core\Entity\EntityReferenceSelection\SelectionInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Entity\Element\EntityAutocomplete;
 
 /**
  * Provides a group autocomplete form element.

@@ -2,20 +2,20 @@
 
 namespace Drupal\entitygroupfield\Plugin\Field\FieldWidget;
 
+use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Entity\Entity\EntityFormDisplay;
+use Drupal\Core\Entity\EntityRepository;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\group\Plugin\GroupContentEnablerManagerInterface;
-use Drupal\Core\Field\FieldDefinitionInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
-use Drupal\Component\Utility\Html;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Field\FieldStorageDefinitionInterface;
-use Drupal\Core\Entity\Entity\EntityFormDisplay;
-use Drupal\Core\Entity\EntityRepository;
+use Drupal\group\Plugin\GroupContentEnablerManagerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Shared base class for Entity Group Field widget plugins.
@@ -156,7 +156,7 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
 
     $target_type = $this->getFieldSetting('target_type');
 
-    $item_mode = isset($widget_state['gcontent'][$delta]['mode']) ? $widget_state['gcontent'][$delta]['mode'] : 'edit';
+    $item_mode = $widget_state['gcontent'][$delta]['mode'] ?? 'edit';
 
     $show_must_be_saved_warning = !empty($widget_state['gcontent'][$delta]['show_warning']);
 
@@ -166,7 +166,7 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
     elseif (isset($items[$delta]->entity)) {
       $gcontent_entity = $items[$delta]->entity;
       // We don't have a widget state yet, get from selector settings.
-      $item_mode = isset($widget_state['gcontent'][$delta]['mode']) ? $widget_state['gcontent'][$delta]['mode'] : 'closed';
+      $item_mode = $widget_state['gcontent'][$delta]['mode'] ?? 'closed';
     }
     elseif (isset($widget_state['selected_bundle'])) {
       $entity_type = $this->entityTypeManager->getDefinition($target_type);
@@ -204,7 +204,7 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
 
     if ($gcontent_entity) {
       $group = $gcontent_entity->getGroup();
-      $entity_plugin_id = isset($widget_state['entity_plugin_id']) ? $widget_state['entity_plugin_id'] : $gcontent_entity->getContentPlugin()->getPluginId();
+      $entity_plugin_id = $widget_state['entity_plugin_id'] ?? $gcontent_entity->getContentPlugin()->getPluginId();
       $element_parents = $parents;
       $element_parents[] = $field_name;
       $element_parents[] = $delta;
@@ -700,7 +700,7 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
       }
     }
 
-    $existing_gcontent = isset($field_state['gcontent']) ? $field_state['gcontent'] : [];
+    $existing_gcontent = $field_state['gcontent'] ?? [];
 
     if (($this->realItemCount < $cardinality || $cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && !$form_state->isProgrammed()) {
       $elements['add_more'] = $this->buildAddActions($entity_plugin_id, $existing_gcontent);
@@ -820,8 +820,8 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
 
     // Add a DIV around the delta receiving the Ajax effect.
     $delta = $element['#max_delta'];
-    $element[$delta]['#prefix'] = '<div class="ajax-new-content">' . (isset($element[$delta]['#prefix']) ? $element[$delta]['#prefix'] : '');
-    $element[$delta]['#suffix'] = (isset($element[$delta]['#suffix']) ? $element[$delta]['#suffix'] : '') . '</div>';
+    $element[$delta]['#prefix'] = '<div class="ajax-new-content">' . ($element[$delta]['#prefix'] ?? '');
+    $element[$delta]['#suffix'] = ($element[$delta]['#suffix'] ?? '') . '</div>';
 
     return $element;
   }
@@ -834,8 +834,8 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
     // Go one level up in the form, to the widgets container.
     $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -4));
 
-    $element['#prefix'] = '<div class="ajax-new-content">' . (isset($element['#prefix']) ? $element['#prefix'] : '');
-    $element['#suffix'] = (isset($element['#suffix']) ? $element['#suffix'] : '') . '</div>';
+    $element['#prefix'] = '<div class="ajax-new-content">' . ($element['#prefix'] ?? '');
+    $element['#suffix'] = ($element['#suffix'] ?? '') . '</div>';
 
     return $element;
   }
