@@ -2,6 +2,8 @@
 
 namespace Drupal\Tests\entitygroupfield\Traits;
 
+use Drupal\group\PermissionScopeInterface;
+
 /**
  * Provides group types and group entities for use in test classes.
  *
@@ -68,6 +70,20 @@ trait TestGroupsTrait {
   protected $groupB3;
 
   /**
+   * Test admin role for type 'a'.
+   *
+   * @var \Drupal\group\Entity\GroupRoleInterface
+   */
+  protected $adminRoleA;
+
+  /**
+   * Test admin role for type 'b'.
+   *
+   * @var \Drupal\group\Entity\GroupRoleInterface
+   */
+  protected $adminRoleB;
+
+  /**
    * Initializes all the test group types and groups.
    */
   protected function initializeTestGroups() {
@@ -75,10 +91,12 @@ trait TestGroupsTrait {
     $this->groupTypeA = $this->createGroupType([
       'id' => 'a',
       'label' => 'Type A',
+      'creator_membership' => FALSE,
     ]);
     $this->groupTypeB = $this->createGroupType([
       'id' => 'b',
       'label' => 'Type B',
+      'creator_membership' => FALSE,
     ]);
 
     // Create the groups.
@@ -88,6 +106,17 @@ trait TestGroupsTrait {
     $this->groupB1 = $this->createGroup(['label' => 'group-B1', 'type' => 'b']);
     $this->groupB2 = $this->createGroup(['label' => 'group-B2', 'type' => 'b']);
     $this->groupB3 = $this->createGroup(['label' => 'group-B3', 'type' => 'b']);
+    $this->adminRoleA = $this->createGroupRole([
+      'group_type' => $this->groupTypeA->id(),
+      'scope' => PermissionScopeInterface::INDIVIDUAL_ID,
+      'admin' => TRUE,
+    ]);
+
+    $this->adminRoleB = $this->createGroupRole([
+      'group_type' => $this->groupTypeB->id(),
+      'scope' => PermissionScopeInterface::INDIVIDUAL_ID,
+      'admin' => TRUE,
+    ]);
   }
 
 }

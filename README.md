@@ -32,7 +32,7 @@ with while editing the node.
 This module requires the core 'Group' module:
 https://www.drupal.org/project/group
 
-You must also install one or more "Group content enabler" modules (e.g. 'gnode'
+You must also install one or more "Group relation type" modules (e.g. 'gnode'
 from the Group core project).
 
 
@@ -52,7 +52,7 @@ information.
 In order for this module to do anything, you must first configure your site to
 have group types and create one or more groups. Users can automatically be
 associated with groups, but if you wish to associate other entity types with
-groups you must configure a content enabler manually. For example:
+groups you must configure a group relation type manually. For example:
 
 * Enable the 'gnode' module from Group core.
 * Create a group type at `/admin/group/types` (e.g. 'Private group').

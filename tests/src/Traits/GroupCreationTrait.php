@@ -56,6 +56,25 @@ trait GroupCreationTrait {
   }
 
   /**
+   * Creates a group role.
+   *
+   * @param array $values
+   *   (optional) The values used to create the entity.
+   *
+   * @return \Drupal\group\Entity\GroupRole
+   *   The created group role entity.
+   */
+  protected function createGroupRole(array $values = []) {
+    $storage = $this->getEntityTypeManager()->getStorage('group_role');
+    $group_role = $storage->create($values + [
+      'id' => $this->randomMachineName(),
+      'label' => $this->randomString(),
+    ]);
+    $storage->save($group_role);
+    return $group_role;
+  }
+
+  /**
    * Returns the entity type manager service to use.
    *
    * @return \Drupal\Core\Entity\EntityTypeManagerInterface

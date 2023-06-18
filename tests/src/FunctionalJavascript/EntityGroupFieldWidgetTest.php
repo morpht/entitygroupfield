@@ -2,7 +2,9 @@
 
 namespace Drupal\Tests\entitygroupfield\FunctionalJavascript;
 
+use Drupal\Core\Session\AccountInterface;
 use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
+use Drupal\group\PermissionScopeInterface;
 use Drupal\Tests\entitygroupfield\Traits\GroupCreationTrait;
 use Drupal\Tests\entitygroupfield\Traits\TestGroupsTrait;
 
@@ -88,7 +90,6 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
       'administer node display',
       'administer users',
       'bypass node access',
-      'bypass group access',
     ]);
     $this->testUser = $this->drupalCreateUser([
       'access content',
@@ -110,46 +111,80 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $this->initializeTestGroups();
 
     // Enable article nodes to be assigned to only 'A' group type.
-    $this->entityTypeManager->getStorage('group_content_type')
+    $this->entityTypeManager->getStorage(entitygroupfield_get_group_relationship_type_id())
       ->createFromPlugin($this->groupTypeA, 'group_node:article')->save();
     // Let page nodes be assigned to both 'A' and 'B' groups.
-    $this->entityTypeManager->getStorage('group_content_type')
+    $this->entityTypeManager->getStorage(entitygroupfield_get_group_relationship_type_id())
       ->createFromPlugin($this->groupTypeA, 'group_node:page')->save();
-    $this->entityTypeManager->getStorage('group_content_type')
+    $this->entityTypeManager->getStorage(entitygroupfield_get_group_relationship_type_id())
       ->createFromPlugin($this->groupTypeB, 'group_node:page')->save();
 
+    // Create admin role for group types.
+    $this->entityTypeManager->getStorage('group_role')
+      ->create([
+        'id' => $this->randomMachineName(8),
+        'label' => $this->randomString(),
+        'group_type' => $this->groupTypeA->id(),
+        'scope' => PermissionScopeInterface::OUTSIDER_ID,
+        'global_role' => $this->adminUser->getRoles(TRUE)[0],
+        'admin' => TRUE,
+      ])->save();
+    $this->entityTypeManager->getStorage('group_role')
+      ->create([
+        'id' => $this->randomMachineName(8),
+        'label' => $this->randomString(),
+        'group_type' => $this->groupTypeB->id(),
+        'scope' => PermissionScopeInterface::OUTSIDER_ID,
+        'global_role' => $this->adminUser->getRoles(TRUE)[0],
+        'admin' => TRUE,
+      ])->save();
     // Let regular group members view and add content to the groups.
-    $this->groupTypeA->getMemberRole()->grantPermissions([
-      'view group',
-      'create group_node:article content',
-      'create group_node:article entity',
-      'create group_node:page content',
-      'create group_node:page entity',
-      'delete own group_node:article content',
-      'delete own group_node:article entity',
-      'delete own group_node:page content',
-      'delete own group_node:page entity',
-      'update own group_node:article content',
-      'update own group_node:article entity',
-      'update own group_node:page content',
-      'update own group_node:page entity',
-      'view group_node:article content',
-      'view group_node:article entity',
-      'view group_node:page content',
-      'view group_node:page entity',
-    ])->save();
-
-    $this->groupTypeB->getMemberRole()->grantPermissions([
-      'view group',
-      'create group_node:page content',
-      'create group_node:page entity',
-      'delete own group_node:page content',
-      'delete own group_node:page entity',
-      'update own group_node:page content',
-      'update own group_node:page entity',
-      'view group_node:page content',
-      'view group_node:page entity',
-    ])->save();
+    $this->entityTypeManager->getStorage('group_role')
+      ->create([
+        'id' => $this->randomMachineName(8),
+        'label' => $this->randomString(),
+        'group_type' => $this->groupTypeA->id(),
+        'scope' => PermissionScopeInterface::INSIDER_ID,
+        'global_role' => AccountInterface::AUTHENTICATED_ROLE,
+        'permissions' => [
+          'view group',
+          'create group_node:article relationship',
+          'create group_node:article entity',
+          'create group_node:page relationship',
+          'create group_node:page entity',
+          'delete own group_node:article relationship',
+          'delete own group_node:article entity',
+          'delete own group_node:page relationship',
+          'delete own group_node:page entity',
+          'update own group_node:article relationship',
+          'update own group_node:article entity',
+          'update own group_node:page relationship',
+          'update own group_node:page entity',
+          'view group_node:article relationship',
+          'view group_node:article entity',
+          'view group_node:page relationship',
+          'view group_node:page entity',
+        ],
+      ])->save();
+    $this->entityTypeManager->getStorage('group_role')
+      ->create([
+        'id' => $this->randomMachineName(8),
+        'label' => $this->randomString(),
+        'group_type' => $this->groupTypeB->id(),
+        'scope' => PermissionScopeInterface::INSIDER_ID,
+        'global_role' => AccountInterface::AUTHENTICATED_ROLE,
+        'permissions' => [
+          'view group',
+          'create group_node:page relationship',
+          'create group_node:page entity',
+          'delete own group_node:page relationship',
+          'delete own group_node:page entity',
+          'update own group_node:page relationship',
+          'update own group_node:page entity',
+          'view group_node:page relationship',
+          'view group_node:page entity',
+        ],
+      ])->save();
 
     // Subscribe the testUser to groups 1 + 2 (but not 3) in both types (A/B).
     $this->groupA1->addMember($this->testUser);
@@ -221,11 +256,15 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
    */
   protected function checkUserSelectWidgetBeforeGroups() {
     // Configure users to use the select widget.
+    $custom_label = $this->randomMachineName(10);
+    $custom_help_text = $this->randomMachineName(20);
     $this->configureFormDisplay('user', 'user', [
       'type' => 'entitygroupfield_select_widget',
       'settings' => [
         'multiple' => TRUE,
         'required' => FALSE,
+        'label' => $custom_label,
+        'help_text' => $custom_help_text,
       ],
     ]);
 
@@ -371,11 +410,15 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $assert_session = $this->assertSession();
 
     // Configure articles to use the select widget.
+    $custom_label = $this->randomMachineName(10);
+    $custom_help_text = $this->randomMachineName(20);
     $this->configureFormDisplay('node', 'article', [
       'type' => 'entitygroupfield_select_widget',
       'settings' => [
         'multiple' => TRUE,
         'required' => FALSE,
+        'label' => $custom_label,
+        'help_text' => $custom_help_text,
       ],
     ]);
 
@@ -503,11 +546,15 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $this->assertSession();
 
     // Configure pages to use the select widget.
+    $custom_label = $this->randomMachineName(10);
+    $custom_help_text = $this->randomMachineName(20);
     $this->configureFormDisplay('node', 'page', [
       'type' => 'entitygroupfield_select_widget',
       'settings' => [
         'multiple' => TRUE,
         'required' => FALSE,
+        'label' => $custom_label,
+        'help_text' => $custom_help_text,
       ],
     ]);
     $this->drupalGet('/node/add/page');

@@ -78,12 +78,14 @@ class GroupAutocompleteFormElementTest extends EntityGroupFieldKernelTestBase im
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {}
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+  }
 
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {}
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+  }
 
   /**
    * Tests the group_autocomplete form element when no groups exist.
@@ -121,32 +123,34 @@ class GroupAutocompleteFormElementTest extends EntityGroupFieldKernelTestBase im
    * Tests the group_autocomplete form element with existing groups.
    */
   public function testGroupAutocomplete() {
-    $form_state = new FormState();
 
-    // Set up the current user. Use 'bypass group access' here since we don't
-    // care about Group access controls for this test.
-    $this->setUpCurrentUser([],
-      [
-        'access content',
-        'bypass group access',
-      ]
-    );
+    $form_state = new FormState();
+    $admin = $this->createUser();
+    $this->setCurrentUser($admin);
 
     // Create the initial group.
-    $group = $this->createGroup(['label' => 'group-A']);
-    $this->testGroups[$group->id()] = $group;
+    $group = $this->createGroup([
+      'label' => 'group-A',
+      'type' => $this->groupType->id(),
+    ]);
 
+    // Adding member as admin as we don't care for access here.
+    $group->addMember($admin, ['group_roles' => [$this->adminRole->id()]]);
+
+    $this->testGroups[$group->id()] = $group;
     // Try to use it and it should work.
     $form_state->setValues([
       'group_autocomplete_all' => 'group-A',
       'group_autocomplete_exclude' => '',
     ]);
     $this->formBuilder->submitForm($this, $form_state);
+
     $this->assertCount(0, $form_state->getErrors());
     $this->assertEquals(1, $form_state->getValue('group_autocomplete_all'));
 
     // Add a duplicate 'group-A' group.
     $group = $this->createGroup(['label' => 'group-A']);
+    $group->addMember($admin, ['group_roles' => [$this->adminRole->id()]]);
     $this->testGroups[$group->id()] = $group;
     $form_state->setValues([
       'group_autocomplete_all' => 'group-A',
@@ -166,10 +170,12 @@ class GroupAutocompleteFormElementTest extends EntityGroupFieldKernelTestBase im
     $this->createGroupType([
       'id' => 'special',
       'label' => 'Special',
+      'creator_membership' => FALSE,
     ]);
     // Add a 3rd 'group-A' of the new special type, and now it should work both
     // in the excluded and restricted elements.
     $group = $this->createGroup(['label' => 'group-A', 'type' => 'special']);
+    $group->addMember($admin, ['group_roles' => [$this->adminRole->id()]]);
     $this->testGroups[$group->id()] = $group;
     $form_state = (new FormState())
       ->setValues([
@@ -184,7 +190,11 @@ class GroupAutocompleteFormElementTest extends EntityGroupFieldKernelTestBase im
 
     // Add another bunch of 'group-A' groups so we end up with more than 5.
     for ($i = 0; $i < 3; $i++) {
-      $group = $this->createGroup(['label' => 'group-A']);
+      $group = $this->createGroup([
+        'label' => 'group-A',
+        'creator_membership' => FALSE,
+      ]);
+      $group->addMember($admin, ['group_roles' => [$this->adminRole->id()]]);
       $this->testGroups[$group->id()] = $group;
     }
     $form_state = (new FormState())

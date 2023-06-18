@@ -15,7 +15,7 @@ use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountProxyInterface;
-use Drupal\group\Plugin\GroupContentEnablerManagerInterface;
+use Drupal\group\Plugin\Group\Relation\GroupRelationTypeManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -24,11 +24,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 abstract class EntityGroupFieldWidgetBase extends WidgetBase implements ContainerFactoryPluginInterface {
 
   /**
-   * The Group Content Plugin Manager.
+   * The Group Relation Plugin Manager.
    *
-   * @var \Drupal\group\Plugin\GroupContentEnablerManagerInterface
+   * @var \Drupal\group\Plugin\Group\Relation\GroupRelationTypeManagerInterface
    */
-  protected $groupContentPluginManager;
+  protected $groupRelationTypeManager;
 
   /**
    * The current user.
@@ -61,9 +61,9 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
   /**
    * {@inheritdoc}
    */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, array $third_party_settings, GroupContentEnablerManagerInterface $group_content_plugin_manager, AccountProxyInterface $current_user, EntityTypeManagerInterface $entity_type_manager, EntityRepository $entity_repository, EntityTypeBundleInfoInterface $entity_type_bundle_info) {
+  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, array $third_party_settings, GroupRelationTypeManagerInterface $group_relation_type_manager, AccountProxyInterface $current_user, EntityTypeManagerInterface $entity_type_manager, EntityRepository $entity_repository, EntityTypeBundleInfoInterface $entity_type_bundle_info) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $third_party_settings);
-    $this->groupContentPluginManager = $group_content_plugin_manager;
+    $this->groupRelationTypeManager = $group_relation_type_manager;
     $this->currentUser = $current_user;
     $this->entityTypeManager = $entity_type_manager;
     $this->entityRepository = $entity_repository;
@@ -80,7 +80,7 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
       $configuration['field_definition'],
       $configuration['settings'],
       $configuration['third_party_settings'],
-      $container->get('plugin.manager.group_content_enabler'),
+      $container->get('group_relation_type.manager'),
       $container->get('current_user'),
       $container->get('entity_type.manager'),
       $container->get('entity.repository'),
@@ -249,7 +249,7 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
       if ($entity_plugin_id == 'group_membership') {
         if ($items->getEntity()->id() == $account->id()) {
           $can_delete = $group->hasPermission("leave group", $account);
-          $can_edit = $group->hasPermission("update own group_membership content", $account);
+          $can_edit = $group->hasPermission("update own group_membership relationship", $account);
         }
         else {
           $can_delete = $group->hasPermission("administer members", $account);
@@ -257,8 +257,8 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
         }
       }
       else {
-        $can_delete = $host->isNew() ? FALSE : $group->hasPermission("delete any $entity_plugin_id content", $account);
-        $can_edit = $group->hasPermission("update any $entity_plugin_id content", $account);
+        $can_delete = $host->isNew() ? FALSE : $group->hasPermission("delete any $entity_plugin_id relationship", $account);
+        $can_edit = $group->hasPermission("update any $entity_plugin_id relationship", $account);
       }
       // Checking if can delete own.
       if (!$can_delete && $entity_plugin_id == 'group_membership') {
@@ -267,18 +267,18 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
         }
       }
       if (!$can_delete && $gcontent_entity->getOwnerId() == $account->id()) {
-        $can_delete = $group->hasPermission("delete own $entity_plugin_id content", $account);
+        $can_delete = $group->hasPermission("delete own $entity_plugin_id relationship", $account);
       }
       // Checking if can update own.
       if (!$can_edit) {
-        $group_content_owner = $gcontent_entity->getOwnerId();
+        $group_relationship_owner = $gcontent_entity->getOwnerId();
         // In case of membership the value to compare is the entity
         // instead owner.
         if ($entity_plugin_id == 'group_membership') {
-          $group_content_owner = $gcontent_entity->getEntity()->id();
+          $group_relationship_owner = $gcontent_entity->getEntity()->id();
         }
-        if ($group_content_owner == $account->id()) {
-          $can_edit = $group->hasPermission("update own $entity_plugin_id content", $account);
+        if ($group_relationship_owner == $account->id()) {
+          $can_edit = $group->hasPermission("update own $entity_plugin_id relationship", $account);
         }
       }
 
@@ -586,7 +586,7 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
     $host = $items->getEntity();
     $target_entity_type = $host->getEntityTypeId();
     $target_bundle = $host->bundle();
-    $entity_plugin_ids = entitygroupfield_get_group_content_plugin_ids($target_entity_type, $target_bundle);
+    $entity_plugin_ids = entitygroupfield_get_group_relation_type_plugin_ids($target_entity_type, $target_bundle);
     // @todo This array might have multiple values.
     // @see https://www.drupal.org/node/3153067
     $entity_plugin_id = reset($entity_plugin_ids);
@@ -875,9 +875,12 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
     $selected_group = NestedArray::getValue($form_state->getValues(), $parent_keys);
 
     $group = \Drupal::entityTypeManager()->getStorage('group')->load($selected_group);
-    $group_content_type_id = $group->getGroupType()->getContentPlugin($widget_state['entity_plugin_id'])->getContentTypeConfigId();
+    $group_type = $group->getGroupType()->id();
+    $group_relationship_type_id = \Drupal::entityTypeManager()
+      ->getStorage(entitygroupfield_get_group_relationship_type_id())
+      ->getRelationshipTypeId($group_type, $widget_state['entity_plugin_id']);
     $widget_state['selected_group'] = $selected_group;
-    $widget_state['selected_bundle'] = $group_content_type_id;
+    $widget_state['selected_bundle'] = $group_relationship_type_id;
 
     // Clearing relation field.
     $user_input = $form_state->getUserInput();
@@ -988,7 +991,7 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
    */
   protected function getPluginGroupTypes($plugin_id) {
     $group_types = [];
-    $group_type_map = $this->groupContentPluginManager->getGroupTypePluginMap();
+    $group_type_map = $this->groupRelationTypeManager->getGroupTypePluginMap();
     foreach ($group_type_map as $group_type_id => $group_plugins_enabled) {
       foreach ($group_plugins_enabled as $group_plugin_id) {
         if ($group_plugin_id == $plugin_id) {
@@ -1014,7 +1017,7 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
     $groups_cardinality = [];
     if ($groups) {
       foreach ($groups as $group) {
-        $groups_cardinality[$group->id()] = $group->getGroupType()->getContentPlugin($plugin_id)->getEntityCardinality();
+        $groups_cardinality[$group->id()] = $group->getGroupType()->getPlugin($plugin_id)->getEntityCardinality();
       }
     }
     return $groups_cardinality;

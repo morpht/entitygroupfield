@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\entitygroupfield\Kernel;
 
+use Drupal\group\PermissionScopeInterface;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\Tests\entitygroupfield\Traits\GroupCreationTrait;
 use Drupal\Tests\user\Traits\UserCreationTrait;
@@ -15,12 +16,27 @@ abstract class EntityGroupFieldKernelTestBase extends KernelTestBase {
   use GroupCreationTrait;
 
   /**
+   * The group type to run this test on.
+   *
+   * @var \Drupal\group\Entity\GroupTypeInterface
+   */
+  protected $groupType;
+
+  /**
+   * The group admin role.
+   *
+   * @var \Drupal\group\Entity\GroupRoleInterface
+   */
+  protected $adminRole;
+
+  /**
    * {@inheritdoc}
    */
   protected static $modules = [
     'system',
     'user',
     'group',
+    'flexible_permissions',
     'variationcache',
     'entity',
     'field',
@@ -29,9 +45,9 @@ abstract class EntityGroupFieldKernelTestBase extends KernelTestBase {
   ];
 
   /**
-   * The content enabler plugin manager.
+   * The group relation type plugin manager.
    *
-   * @var \Drupal\group\Plugin\GroupContentEnablerManagerInterface
+   * @var \Drupal\group\Plugin\Group\Relation\GroupRelationTypeManagerInterface
    */
   protected $groupContentPluginManager;
 
@@ -41,18 +57,24 @@ abstract class EntityGroupFieldKernelTestBase extends KernelTestBase {
   protected function setUp(): void {
     parent::setUp();
 
-    $this->installSchema('system', ['sequences', 'key_value_expire']);
+    $this->installSchema('system', ['sequences']);
     $this->installEntitySchema('user');
     $this->installEntitySchema('group');
-    $this->installEntitySchema('group_content');
+    $this->installEntitySchema(entitygroupfield_get_group_relationship_id());
     $this->installConfig(['group']);
 
-    $this->groupContentPluginManager = $this->container->get('plugin.manager.group_content_enabler');
+    $this->groupContentPluginManager = $this->container->get('group_relation_type.manager');
 
     // Create a default group type.
-    $this->createGroupType([
+    $this->groupType = $this->createGroupType([
       'id' => 'default',
       'label' => 'Default',
+      'creator_membership' => FALSE,
+    ]);
+    $this->adminRole = $this->createGroupRole([
+      'group_type' => $this->groupType->id(),
+      'scope' => PermissionScopeInterface::INDIVIDUAL_ID,
+      'admin' => TRUE,
     ]);
   }
 

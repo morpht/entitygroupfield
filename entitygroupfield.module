@@ -33,7 +33,7 @@ function entitygroupfield_entity_base_field_info(EntityTypeInterface $entity_typ
       $fields['entitygroupfield'] = BaseFieldDefinition::create('entitygroupfield')
         ->setName('entitygroupfield')
         ->setTargetEntityTypeId($entity_type->id())
-        ->setSetting('target_type', 'group_content')
+        ->setSetting('target_type', entitygroupfield_get_group_relationship_id())
         ->setLabel($field_label)
         ->setTranslatable(FALSE)
         ->setComputed(TRUE)
@@ -68,13 +68,13 @@ function entitygroupfield_field_formatter_info_alter(array &$info) {
  */
 function entitygroupfield_get_entity_types() {
   $entity_types = [];
-  $plugin_manager = \Drupal::service('plugin.manager.group_content_enabler');
+  $plugin_manager = \Drupal::service('group_relation_type.manager');
   foreach ($plugin_manager->getDefinitions() as $plugin_definition) {
-    if ($entity_type_definition = \Drupal::entityTypeManager()->getDefinition($plugin_definition['entity_type_id'], FALSE)) {
+    if ($entity_type_definition = \Drupal::entityTypeManager()->getDefinition($plugin_definition->getEntityTypeId(), FALSE)) {
       // Check if fields can be attached to the entity type.
       if ($entity_type_definition->entityClassImplements(FieldableEntityInterface::class)) {
-        $entity_types[$plugin_definition['entity_type_id']]['label'] = (string) $entity_type_definition->getLabel();
-        $entity_types[$plugin_definition['entity_type_id']]['bundles'][] = $plugin_definition['entity_bundle'];
+        $entity_types[$plugin_definition->getEntityTypeId()]['label'] = (string) $entity_type_definition->getLabel();
+        $entity_types[$plugin_definition->getEntityTypeId()]['bundles'][] = $plugin_definition->getEntityTypeId();
       }
     }
   }
@@ -82,7 +82,7 @@ function entitygroupfield_get_entity_types() {
 }
 
 /**
- * Returns the content enabler plugin IDs for a given entity type.
+ * Returns the group relation type plugin IDs for a given entity type.
  *
  * @param string $entity_type_id
  *   The entity type ID.
@@ -90,17 +90,59 @@ function entitygroupfield_get_entity_types() {
  *   (optional) The entity bundle.
  *
  * @return string[]
- *   An array of group content enabler plugin IDs that match.
+ *   An array of group relation type plugin IDs that match.
  */
-function entitygroupfield_get_group_content_plugin_ids($entity_type_id, $bundle = NULL) {
+function entitygroupfield_get_group_relation_type_plugin_ids($entity_type_id, $bundle = NULL) {
   $plugin_ids = [];
-  foreach (\Drupal::service('plugin.manager.group_content_enabler')->getDefinitions() as $plugin_id => $plugin_info) {
-    if ($plugin_info['entity_type_id'] === $entity_type_id) {
-      if (isset($bundle) && !empty($plugin_info['entity_bundle']) && $plugin_info['entity_bundle'] !== $bundle) {
+  foreach (\Drupal::service('group_relation_type.manager')->getDefinitions() as $plugin_id => $plugin_info) {
+    if ($plugin_info->getEntityTypeId() === $entity_type_id) {
+      if (isset($bundle) && !empty($plugin_info->getEntityBundle()) && $plugin_info->getEntityBundle() !== $bundle) {
         continue;
       }
       $plugin_ids[] = $plugin_id;
     }
   }
   return $plugin_ids;
+}
+
+/**
+ * Returns the group relationship entity ID.
+ *
+ * Expected to return:
+ *  - 'group_relationship' for Group 3.x.
+ *  - 'group_content' for Group 2.x.
+ *
+ * @throws \Exception
+ *   Thrown if the group relationship entity type can't be found.
+ */
+function entitygroupfield_get_group_relationship_id(): string {
+  $entity_type_manager = \Drupal::entityTypeManager();
+  if ($entity_type_manager->hasDefinition('group_relationship')) {
+    return 'group_relationship';
+  }
+  elseif ($entity_type_manager->hasDefinition('group_content')) {
+    return 'group_content';
+  }
+  throw new \Exception('Cannot find group relationship entity type.');
+}
+
+/**
+ * Returns the group relationship type entity type ID.
+ *
+ * Expected to return:
+ *  - 'group_relationship_type' for Group 3.x.
+ *  - 'group_content_type' for Group 2.x.
+ *
+ * @throws \Exception
+ *   Thrown if the group relationship type entity type can't be found.
+ */
+function entitygroupfield_get_group_relationship_type_id(): string {
+  $entity_type_manager = \Drupal::entityTypeManager();
+  if ($entity_type_manager->hasDefinition('group_relationship_type')) {
+    return 'group_relationship_type';
+  }
+  elseif ($entity_type_manager->hasDefinition('group_content_type')) {
+    return 'group_content_type';
+  }
+  throw new \Exception('Cannot find group relationship type entity type.');
 }
