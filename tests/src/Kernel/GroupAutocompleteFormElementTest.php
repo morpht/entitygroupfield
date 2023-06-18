@@ -30,7 +30,7 @@ class GroupAutocompleteFormElementTest extends EntityGroupFieldKernelTestBase im
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  public function setUp(): void {
     parent::setUp();
     $this->formBuilder = $this->container->get('form_builder');
   }
