@@ -52,6 +52,34 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
   protected $entityRepository;
 
   /**
+   * The parents element from form.
+   *
+   * @var array
+   */
+  protected $fieldParents;
+
+  /**
+   * The real item count.
+   *
+   * @var int
+   */
+  protected $realItemCount;
+
+  /**
+   * The field identifier prefix.
+   *
+   * @var string
+   */
+  protected $fieldIdPrefix;
+
+  /**
+   * The field wrapper identifier.
+   *
+   * @var string
+   */
+  protected $fieldWrapperId;
+
+  /**
    * The entity type bundle info service.
    *
    * @var \Drupal\Core\Entity\EntityTypeBundleInfoInterface
