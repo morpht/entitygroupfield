@@ -329,7 +329,7 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
               'effect' => 'fade',
             ],
             '#access' => $can_delete,
-            '#prefix' => '<li class="remove">',
+            '#prefix' => '<li class="remove dropbutton__item">',
             '#suffix' => '</li>',
             '#gcontent_mode' => 'remove',
           ];
@@ -355,7 +355,7 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
                 'effect' => 'fade',
               ],
               '#access' => $can_edit,
-              '#prefix' => '<li class="collapse">',
+              '#prefix' => '<li class="collapse dropbutton__item">',
               '#suffix' => '</li>',
               '#gcontent_mode' => 'collapsed',
               '#gcontent_show_warning' => TRUE,
@@ -386,7 +386,7 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
               'effect' => 'fade',
             ],
             '#access' => $can_edit,
-            '#prefix' => '<li class="edit">',
+            '#prefix' => '<li class="edit dropbutton__item">',
             '#suffix' => '</li>',
             '#gcontent_mode' => 'edit',
           ];
@@ -441,7 +441,7 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
               'wrapper' => $widget_state['ajax_wrapper_id'],
               'effect' => 'fade',
             ],
-            '#prefix' => '<li class="confirm-remove">',
+            '#prefix' => '<li class="confirm-remove dropbutton__item">',
             '#suffix' => '</li>',
             '#gcontent_mode' => 'removed',
           ];
@@ -461,7 +461,7 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
               'wrapper' => $widget_state['ajax_wrapper_id'],
               'effect' => 'fade',
             ],
-            '#prefix' => '<li class="restore">',
+            '#prefix' => '<li class="restore dropbutton__item">',
             '#suffix' => '</li>',
             '#gcontent_mode' => 'edit',
           ];
@@ -482,7 +482,7 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
                 'entitygroupfield_dropbutton_wrapper',
               ];
               $element['top']['links']['prefix'] = [
-                '#markup' => '<ul class="dropbutton">',
+                '#markup' => '<ul class="dropbutton dropbutton--multiple">',
                 '#weight' => -999,
               ];
               $element['top']['links']['suffix'] = [
