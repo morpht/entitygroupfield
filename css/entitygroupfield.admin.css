@@ -1,9 +1,9 @@
 .field--widget-group-selector-widget .dropbutton-wrapper {
   display: inline-flex;
-  padding-right: 0;
-  margin-right: 0;
-  /* Override 600px breakpoint from core. */
   width: auto;
+  margin-right: 0;
+  padding-right: 0;
+  /* Override 600px breakpoint from core. */
 }
 
 .field--widget-group-selector-widget .dropbutton-widget {
@@ -22,12 +22,12 @@
   vertical-align: top;
 }
 .field--widget-group-selector-widget .draggable .tabledrag-handle {
-  padding-right: 0;
   margin-left: 0;
+  padding-right: 0;
 }
 .field--widget-group-selector-widget .tabledrag-handle .handle {
-  margin-left: 0;
   margin-right: 0;
+  margin-left: 0;
   padding-right: 0.2em;
 }
 .gcontent-type-top {
@@ -36,11 +36,11 @@
   justify-content: space-between;
 }
 .gcontent-type-title {
+  overflow: hidden;
   flex-basis: 25%;
   min-width: 80px;
   white-space: nowrap;
   text-overflow: ellipsis;
-  overflow: hidden;
 }
 .field--widget-group-selector-widget .delta-order {
   padding-right: 10px;
