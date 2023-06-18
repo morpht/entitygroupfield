@@ -57,7 +57,7 @@ class EntityGroupFieldItemList extends EntityReferenceFieldItemList {
     if ($this->valueComputed) {
       $host_entity = $this->getEntity();
       $group_content_ids = [];
-      foreach ($this->getIterator() as $delta => $item) {
+      foreach ($this->getIterator() as $item) {
         $group_content_entity = $item->entity;
         $group_content_entity->entity_id = $host_entity->id();
         // Saving entities.

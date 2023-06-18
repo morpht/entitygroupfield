@@ -51,14 +51,22 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
   protected $entityRepository;
 
   /**
+   * The entity type bundle info service.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeBundleInfoInterface
+   */
+  protected $entityTypeBundleInfo;
+
+  /**
    * {@inheritdoc}
    */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, array $third_party_settings, GroupContentEnablerManagerInterface $group_content_plugin_manager, AccountProxyInterface $current_user, EntityTypeManagerInterface $entity_type_manager, EntityRepository $entity_repository) {
+  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, array $third_party_settings, GroupContentEnablerManagerInterface $group_content_plugin_manager, AccountProxyInterface $current_user, EntityTypeManagerInterface $entity_type_manager, EntityRepository $entity_repository, EntityTypeBundleInfoInterface $entity_type_bundle_info) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $third_party_settings);
     $this->groupContentPluginManager = $group_content_plugin_manager;
     $this->currentUser = $current_user;
     $this->entityTypeManager = $entity_type_manager;
     $this->entityRepository = $entity_repository;
+    $this->entityTypeBundleInfo = $entity_type_bundle_info;
   }
 
   /**
@@ -74,7 +82,8 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
       $container->get('plugin.manager.group_content_enabler'),
       $container->get('current_user'),
       $container->get('entity_type.manager'),
-      $container->get('entity.repository')
+      $container->get('entity.repository'),
+      $container->get('entity_type.bundle.info')
     );
   }
 
@@ -272,7 +281,7 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
         }
       }
 
-      $item_bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo($target_type);
+      $item_bundles = $this->entityTypeBundleInfo->getBundleInfo($target_type);
       if (isset($item_bundles[$gcontent_entity->bundle()])) {
         $element['top'] = [
           '#type' => 'container',
@@ -467,7 +476,10 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
 
             $element['top']['links'] = $links;
             if ($show_links > 1) {
-              $element['top']['links']['#theme_wrappers'] = ['dropbutton_wrapper', 'entitygroupfield_dropbutton_wrapper'];
+              $element['top']['links']['#theme_wrappers'] = [
+                'dropbutton_wrapper',
+                'entitygroupfield_dropbutton_wrapper',
+              ];
               $element['top']['links']['prefix'] = [
                 '#markup' => '<ul class="dropbutton">',
                 '#weight' => -999,
@@ -753,7 +765,7 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
     $non_remove_mode_item_count = $widget_state['real_item_count'] - $remove_mode_item_count;
 
     if ($elements['#required'] && $non_remove_mode_item_count < 1) {
-      $form_state->setError($elements, t('@name field is required.', ['@name' => $this->fieldDefinition->getLabel()]));
+      $form_state->setError($elements, $this->t('@name field is required.', ['@name' => $this->fieldDefinition->getLabel()]));
     }
 
     static::setWidgetState($elements['#field_parents'], $field_name, $form_state, $widget_state);
@@ -938,7 +950,7 @@ abstract class EntityGroupFieldWidgetBase extends WidgetBase implements Containe
     $field_name = $this->fieldDefinition->getName();
     $widget_state = static::getWidgetState($form['#parents'], $field_name, $form_state);
     $element = NestedArray::getValue($form_state->getCompleteForm(), $widget_state['array_parents']);
-    foreach ($values as $delta => &$item) {
+    foreach ($values as &$item) {
       $item['target_id'] = NULL;
       if (isset($widget_state['gcontent'][$item['_original_delta']]['entity'])
         && $widget_state['gcontent'][$item['_original_delta']]['mode'] != 'remove') {

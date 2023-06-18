@@ -41,7 +41,10 @@ function entitygroupfield_token_info() {
       // Show a different token for each field delta.
       for ($delta = 0; $delta < 3; $delta++) {
         $info['tokens']["list<$field_token_name>"][$delta] = [
-          'name' => t('@type type with delta @delta', ['@type' => 'Entity Groups', '@delta' => $delta]),
+          'name' => t(
+            '@type type with delta @delta',
+            ['@type' => 'Entity Groups', '@delta' => $delta]
+          ),
           'module' => 'token',
           'type' => $field_token_name,
         ];

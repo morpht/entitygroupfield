@@ -71,7 +71,6 @@ class EntityGroupFieldSelectWidget extends EntityGroupFieldWidgetBase {
     }
 
     $allowed_groups = [];
-    $all_restricted = TRUE;
     /** @var \Drupal\Core\Session\AccountInterface $account */
     $account = $this->currentUser->getAccount();
 
@@ -102,8 +101,6 @@ class EntityGroupFieldSelectWidget extends EntityGroupFieldWidgetBase {
         $can_create = $group->hasPermission("create $entity_plugin_id entity", $account);
       }
       if ($can_create) {
-        $all_restricted = FALSE;
-        $group_bundle = $group->bundle();
         $group_bundle_label = $group->getGroupType()->label();
         $allowed_groups[$group_bundle_label][$group->id()] = $this->entityRepository->getTranslationFromContext($group)->label();
       }

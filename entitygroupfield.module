@@ -69,7 +69,7 @@ function entitygroupfield_field_formatter_info_alter(array &$info) {
 function entitygroupfield_get_entity_types() {
   $entity_types = [];
   $plugin_manager = \Drupal::service('plugin.manager.group_content_enabler');
-  foreach ($plugin_manager->getDefinitions() as $plugin_id => $plugin_definition) {
+  foreach ($plugin_manager->getDefinitions() as $plugin_definition) {
     if ($entity_type_definition = \Drupal::entityTypeManager()->getDefinition($plugin_definition['entity_type_id'], FALSE)) {
       // Check if fields can be attached to the entity type.
       if ($entity_type_definition->entityClassImplements(FieldableEntityInterface::class)) {

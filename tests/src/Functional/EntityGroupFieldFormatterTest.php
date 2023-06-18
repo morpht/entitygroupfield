@@ -53,7 +53,10 @@ class EntityGroupFieldFormatterTest extends BrowserTestBase {
     $this->initializeTestGroups();
 
     // Create node type.
-    $this->drupalCreateContentType(['type' => 'article', 'name' => t('Article')]);
+    $this->drupalCreateContentType([
+      'type' => 'article',
+      'name' => 'Article',
+    ]);
 
     // Enable article nodes to be assigned to only 'A' group type.
     $this->entityTypeManager->getStorage('group_content_type')

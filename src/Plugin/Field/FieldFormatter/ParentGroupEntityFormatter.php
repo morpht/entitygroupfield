@@ -28,7 +28,7 @@ class ParentGroupEntityFormatter extends EntityReferenceEntityFormatter {
     $elements['view_mode'] = [
       '#type' => 'select',
       '#options' => $this->entityDisplayRepository->getViewModeOptions('group'),
-      '#title' => t('View mode'),
+      '#title' => $this->t('View mode'),
       '#default_value' => $this->getSetting('view_mode'),
       '#required' => TRUE,
     ];

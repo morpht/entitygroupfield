@@ -55,8 +55,14 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     parent::setUp();
 
     // Create node types.
-    $this->drupalCreateContentType(['type' => 'article', 'name' => t('Article')]);
-    $this->drupalCreateContentType(['type' => 'page', 'name' => t('Basic page')]);
+    $this->drupalCreateContentType([
+      'type' => 'article',
+      'name' => 'Article',
+    ]);
+    $this->drupalCreateContentType([
+      'type' => 'page',
+      'name' => 'Basic page',
+    ]);
 
     // Configure our field formatter to show group labels (as links).
     foreach (['article', 'page'] as $node_type) {
@@ -264,9 +270,15 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $this->assertNotEmpty($groups_select);
 
     // Ensure our custom label and help text are used.
-    $label = $this->xpath('//label[@for=:for and contains(text(), :value)]', [':for' => 'edit-entitygroupfield-add-more-add-relation', ':value' => $custom_label]);
+    $label = $this->xpath('//label[@for=:for and contains(text(), :value)]', [
+      ':for' => 'edit-entitygroupfield-add-more-add-relation',
+      ':value' => $custom_label,
+    ]);
     $this->assertNotEmpty($label);
-    $help_text = $this->xpath('//div[@id=:id and contains(text(), :value)]', [':id' => 'edit-entitygroupfield-add-more-add-relation--description', ':value' => $custom_help_text]);
+    $help_text = $this->xpath('//div[@id=:id and contains(text(), :value)]', [
+      ':id' => 'edit-entitygroupfield-add-more-add-relation--description',
+      ':value' => $custom_help_text,
+    ]);
     $this->assertNotEmpty($help_text);
 
     // Ensure the default option makes sense.
@@ -281,8 +293,12 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $this->assertNotEmpty($groups_select->find('named', ['option', 5]));
     $this->assertNotEmpty($groups_select->find('named', ['option', 6]));
     // And both opt groups.
-    $this->assertNotEmpty($groups_select->find('named', ['optgroup', $this->groupTypeA->label()]));
-    $this->assertNotEmpty($groups_select->find('named', ['optgroup', $this->groupTypeB->label()]));
+    $this->assertNotEmpty($groups_select->find('named', [
+      'optgroup', $this->groupTypeA->label(),
+    ]));
+    $this->assertNotEmpty($groups_select->find('named', [
+      'optgroup', $this->groupTypeB->label(),
+    ]));
 
     // Try to add to groupA1.
     $groups_select->setValue($this->groupA1->id());
@@ -371,7 +387,9 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $groups_select = $page->findField('entitygroupfield[add_more][add_relation]');
     $this->assertNotEmpty($groups_select);
     // Since this is an article, only 'A' type groups should be options.
-    $this->assertNotEmpty($groups_select->find('named', ['option', '- Select a group -']));
+    $this->assertNotEmpty($groups_select->find('named', [
+      'option', '- Select a group -',
+    ]));
     $this->assertNotEmpty($groups_select->find('named', ['option', 1]));
     $this->assertNotEmpty($groups_select->find('named', ['option', 2]));
     $this->assertEmpty($groups_select->find('named', ['option', 3]));
@@ -392,7 +410,9 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     // @todo We'll have to be more careful with this once we correctly handle
     //   group cardinality settings.
     // @see https://www.drupal.org/project/entitygroupfield/issues/3152719
-    $this->assertNotEmpty($groups_select->find('named', ['option', '- Select a group -']));
+    $this->assertNotEmpty($groups_select->find('named', [
+      'option', '- Select a group -',
+    ]));
     $this->assertEmpty($groups_select->find('named', ['option', 1]));
     $this->assertNotEmpty($groups_select->find('named', ['option', 2]));
     $this->assertEmpty($groups_select->find('named', ['option', 3]));
@@ -480,7 +500,7 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
    * Test the 'select' group field widget on page nodes.
    */
   protected function checkPageSelectWidget() {
-    $assert_session = $this->assertSession();
+    $this->assertSession();
 
     // Configure pages to use the select widget.
     $this->configureFormDisplay('node', 'page', [
@@ -497,15 +517,24 @@ class EntityGroupFieldWidgetTest extends WebDriverTestBase {
     $groups_select = $page->findField('entitygroupfield[add_more][add_relation]');
     $this->assertNotEmpty($groups_select);
     // As a page node, all 4 groups the user is in should be options.
-    $this->assertNotEmpty($groups_select->find('named', ['option', '- Select a group -']));
+    $this->assertNotEmpty($groups_select->find('named', [
+      'option',
+      '- Select a group -',
+    ]));
     $this->assertNotEmpty($groups_select->find('named', ['option', 1]));
     $this->assertNotEmpty($groups_select->find('named', ['option', 2]));
     // User not a member of group-A3.
     $this->assertNotEmpty($groups_select->find('named', ['option', 4]));
     $this->assertNotEmpty($groups_select->find('named', ['option', 5]));
     // And both opt groups.
-    $this->assertNotEmpty($groups_select->find('named', ['optgroup', $this->groupTypeA->label()]));
-    $this->assertNotEmpty($groups_select->find('named', ['optgroup', $this->groupTypeB->label()]));
+    $this->assertNotEmpty($groups_select->find('named', [
+      'optgroup',
+      $this->groupTypeA->label(),
+    ]));
+    $this->assertNotEmpty($groups_select->find('named', [
+      'optgroup',
+      $this->groupTypeB->label(),
+    ]));
 
     // @todo Anything else we should test with both A and B groups that we
     // didn't already cover with articles?

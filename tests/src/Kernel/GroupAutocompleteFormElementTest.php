@@ -125,7 +125,7 @@ class GroupAutocompleteFormElementTest extends EntityGroupFieldKernelTestBase im
 
     // Set up the current user. Use 'bypass group access' here since we don't
     // care about Group access controls for this test.
-    $test_user = $this->setUpCurrentUser([],
+    $this->setUpCurrentUser([],
       [
         'access content',
         'bypass group access',
@@ -163,7 +163,7 @@ class GroupAutocompleteFormElementTest extends EntityGroupFieldKernelTestBase im
     $this->assertEquals('There are no groups called "<em class="placeholder">group-A</em>".', $form_errors['group_autocomplete_restrict']);
 
     // Create the group type that the 'restrict' element requires.
-    $special_type = $this->createGroupType([
+    $this->createGroupType([
       'id' => 'special',
       'label' => 'Special',
     ]);
