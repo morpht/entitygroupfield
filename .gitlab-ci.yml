@@ -15,6 +15,17 @@ include:
 # Start custom overrides.
 #
 
+# Customize stages to add matrix builds and testing.
+stages:
+  # The first three are supported by the upstream DA templates.
+  - build
+  - validate
+  - test
+  # Once tests pass on the "canary", build other configurations.
+  - matrix-build
+  # There is no matrix-validate. We only need to validate the initial build.
+  - matrix-test
+
 variables:
   # Disable default phpunit job in favor of the d9/10 variants below.
   SKIP_PHPUNIT: 1
@@ -25,13 +36,13 @@ phpcs:
   # Set allow_failure to false so that the test fails for coding standards faults.
   allow_failure: false
   needs:
-    - composer-d9
+    - composer-d9-g2
 #  dependencies:
 #    - "composer: [8.1, $CORE_MAJOR_DEVELOPMENT]"
 
 composer-lint:
   needs:
-    - composer-d9
+    - composer-d9-g2
 #  dependencies:
 #    - "composer: [8.1, $CORE_MAJOR_DEVELOPMENT]"
 
@@ -39,13 +50,68 @@ composer-lint:
   variables:
     SKIP_COMPOSER: 0
 
-composer-d9:
+# Hidden job to require Group V2.
+.composer-group2:
+  variables:
+    SKIP_COMPOSER: 0
+  script:
+    - rm -f composer.lock
+    - git checkout -- composer.json
+    - !reference [.composer-base, script]
+    - composer require 'drupal/group:^2'
+
+# Hidden job to require Group V3.
+.composer-group3:
+  variables:
+    SKIP_COMPOSER: 0
+  script:
+    - rm -f composer.lock
+    - git checkout -- composer.json
+    - !reference [.composer-base, script]
+    - composer require 'drupal/group:^3'
+
+# The default build environment: Drupal 9.
+composer-d9-g2:
   extends:
     - .composer-base
+    - .composer-group2
     - .composer-local
   variables:
     _TARGET_PHP: "7.4"
     _TARGET_CORE: "9.5.9"
+
+# Build Drupal 9 with Group V3 for testing.
+composer-d9-g3:
+  stage: matrix-build
+  extends:
+    - .composer-base
+    - .composer-group3
+    - .composer-local
+  variables:
+    _TARGET_PHP: "7.4"
+    _TARGET_CORE: "9.5.9"
+
+# Build Drupal 10 with Group V2 for testing.
+composer-d10-g2:
+  stage: matrix-build
+  extends:
+    - .composer-base
+    - .composer-group2
+    - .composer-local
+  variables:
+    _TARGET_PHP: "8.1"
+    _TARGET_CORE: "10.0.9"
+
+# Build Drupal 10 with Group V3 for testing.
+composer-d10-g3:
+  stage: matrix-build
+  extends:
+    - .composer-base
+    - .composer-group3
+    - .composer-local
+  variables:
+    _TARGET_PHP: "8.1"
+    _TARGET_CORE: "10.0.9"
 
 # # Cant use needs with dependencies https://docs.gitlab.com/ee/ci/yaml/index.html#needs today.
 # Bring back when https://gitlab.com/gitlab-org/gitlab/-/issues/254821 lands.
@@ -66,14 +132,41 @@ composer-d9:
 #      # Run test groups in parallel for better dev velocity.
 #      - _PHPUNIT_EXTRA: [ "--group devel", "--group devel_generate" ]
 
-phpunit-d9:
-  #dependencies:
-    # This syntax comes from https://docs.gitlab.com/ee/ci/jobs/job_control.html#fetch-artifacts-from-a-parallelmatrix-job
-    #- "composer: [7.4, $CORE_STABLE]"
+phpunit-d9-g2:
   needs:
-    - composer-d9
+    - composer-d9-g2
   variables:
     _TARGET_PHP: "7.4"
+  extends:
+    - .phpunit-base
+    - .phpunit-local
+
+phpunit-d9-g3:
+  stage: matrix-test
+  needs:
+    - composer-d9-g3
+  variables:
+    _TARGET_PHP: "7.4"
+  extends:
+    - .phpunit-base
+    - .phpunit-local
+
+phpunit-d10-g2:
+  stage: matrix-test
+  needs:
+    - composer-d10-g2
+  variables:
+    _TARGET_PHP: "8.1"
+  extends:
+    - .phpunit-base
+    - .phpunit-local
+
+phpunit-d10-g3:
+  stage: matrix-test
+  needs:
+    - composer-d10-g3
+  variables:
+    _TARGET_PHP: "8.1"
   extends:
     - .phpunit-base
     - .phpunit-local
